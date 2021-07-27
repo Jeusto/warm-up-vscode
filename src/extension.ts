@@ -186,21 +186,16 @@ class CatCodingPanel {
     const scriptUri = webview.asWebviewUri(scriptPathOnDisk);
     const gameScriptUri = webview.asWebviewUri(gameScriptPathOnDisk);
 
-    // Local path to css styles
-    const stylesPathGamePath = vscode.Uri.joinPath(
-      this._extensionUri,
-      "media",
-      "game.css"
-    );
-    const stylesPathThemePath = vscode.Uri.joinPath(
-      this._extensionUri,
-      "media",
-      "theme.css"
-    );
-
     // Uri to load styles into webview
-    const stylesGameUri = webview.asWebviewUri(stylesPathGamePath);
-    const stylesThemeUri = webview.asWebviewUri(stylesPathThemePath);
+    const styleVSCodeUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "media", "vscode.css")
+    );
+    const stylesGameUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "media", "game.css")
+    );
+    const stylesThemeUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "media", "theme.css")
+    );
 
     // Use a nonce to only allow specific scripts to be run
     const nonce = getNonce();
@@ -218,6 +213,7 @@ class CatCodingPanel {
 
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+				<link href="${styleVSCodeUri}" rel="stylesheet">
 				<link href="${stylesGameUri}" rel="stylesheet">
 				<link id="theme" href="${stylesThemeUri}" rel="stylesheet">
 
@@ -229,26 +225,26 @@ class CatCodingPanel {
           <div class="bar">
             <div id="left-wing">
               <span id="word-count">
-                <span id="wc-10" onclick="setWordCount(10)">10</span>
+                <span id="wc-10">10</span>
                 <text> / </text>
-                <span id="wc-25" onclick="setWordCount(25)">25</span>
+                <span id="wc-25">25</span>
                 <text> / </text>
-                <span id="wc-50" onclick="setWordCount(50)">50</span>
+                <span id="wc-50">50</span>
                 <text> / </text>
-                <span id="wc-100" onclick="setWordCount(100)">100</span>
+                <span id="wc-100">100</span>
                 <text> / </text>
-                <span id="wc-250" onclick="setWordCount(250)">250</span>
+                <span id="wc-250">250</span>
               </span>
               <span id="time-count">
-                <span id="tc-15" onclick="setTimeCount(15)">15</span>
+                <span id="tc-15">15</span>
                 <text> / </text>
-                <span id="tc-30" onclick="setTimeCount(30)">30</span>
+                <span id="tc-30">30</span>
                 <text> / </text>
-                <span id="tc-60" onclick="setTimeCount(60)">60</span>
+                <span id="tc-60">60</span>
                 <text> / </text>
-                <span id="tc-120" onclick="setTimeCount(120)">120</span>
+                <span id="tc-120">120</span>
                 <text> / </text>
-                <span id="tc-240" onclick="setTimeCount(240)">240</span>
+                <span id="tc-240">240</span>
               </span>
             </div>
             <div id="right-wing">WPM: XX / ACC: XX</div>
@@ -257,14 +253,11 @@ class CatCodingPanel {
             <div id="text-display"></div>
             <div class="bar">
               <input id="input-field" type="text" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" tabindex="1"/>
-              <button id="redo-button" onclick="setText(event)" tabindex="2">redo</button>
+              <button id="redo-button" tabindex="2">redo</button>
             </div>
           </div>
         </div>
-        <div id="theme-center" class="hidden">
-          <div id="left-wing" onClick="hideThemeCenter();">< back</div>
-          <div id="theme-area"></div>
-        </div>
+
         <h1 id="lines-of-code-counter">0</h1>
 
         <script nonc="${nonce}" src="${gameScriptUri}"></script>

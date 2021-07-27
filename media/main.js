@@ -69,7 +69,7 @@
 
   // Get cookies
   setLanguage("french");
-  setWordCount(50);
+  setWordCount(10);
   setTimeCount(60);
   setTypingMode("wordcount");
   setPunctuation("false");
@@ -414,50 +414,80 @@
         // @ts-ignore
         setPunctuation(inputField.value);
       }
-    } else if (
-      // @ts-ignore
-      !document.querySelector("#theme-center").classList.contains("hidden")
-    ) {
-      if (e.key === "Escape") {
-        // @ts-ignore
-        hideThemeCenter();
-        // @ts-ignore
-        inputField.focus();
-      }
     } else if (e.key === "Escape") {
       setText(e);
     }
   });
 
+  // Command center actions
+  document.querySelector("#wc-10")?.addEventListener("click", () => {
+    setWordCount(10);
+  });
+  document.querySelector("#wc-25")?.addEventListener("click", () => {
+    setWordCount(25);
+  });
+  document.querySelector("#wc-50")?.addEventListener("click", () => {
+    setWordCount(50);
+  });
+  document.querySelector("#wc-100")?.addEventListener("click", () => {
+    setWordCount(100);
+  });
+  document.querySelector("#wc-250")?.addEventListener("click", () => {
+    setWordCount(250);
+  });
+
+  document.querySelector("#wc-15")?.addEventListener("click", () => {
+    setTimeCount(15);
+  });
+  document.querySelector("#wc-30")?.addEventListener("click", () => {
+    setTimeCount(30);
+  });
+  document.querySelector("#wc-60")?.addEventListener("click", () => {
+    setTimeCount(60);
+  });
+  document.querySelector("#wc-120")?.addEventListener("click", () => {
+    setTimeCount(120);
+  });
+  document.querySelector("#wc-240")?.addEventListener("click", () => {
+    setTimeCount(240);
+  });
+
+  // Redo button action
+  // @ts-ignore
+  document.querySelector("#redo-button").addEventListener("click", (e) => {
+    setText(e);
+  });
+
   // Functions
   // @ts-ignore
   function setLanguage(_lang) {
-    const lang = _lang.toLowerCase();
-    fetch("https://reqres.in/api/users?page=2")
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        if (typeof json[lang] !== "undefined") {
-          randomWords = json[lang];
+    randomWords = ["bonjour", "salut", "hello", "hey", "hi", "yo"];
+    // const lang = _lang.toLowerCase();
+    // fetch("https://reqres.in/api/users?page=2")
+    //   .then((response) => response.json())
+    //   .then((json) => {
+    //     console.log(json);
+    //     if (typeof json[lang] !== "undefined") {
+    //       randomWords = json[lang];
 
-          if (lang === "arabic") {
-            // @ts-ignore
-            textDisplay.style.direction = "rtl";
-            // @ts-ignore
-            inputField.style.direction = "rtl";
-          } else {
-            // @ts-ignore
-            textDisplay.style.direction = "ltr";
-            // @ts-ignore
-            inputField.style.direction = "ltr";
-          }
+    //       if (lang === "arabic") {
+    //         // @ts-ignore
+    //         textDisplay.style.direction = "rtl";
+    //         // @ts-ignore
+    //         inputField.style.direction = "rtl";
+    //       } else {
+    //         // @ts-ignore
+    //         textDisplay.style.direction = "ltr";
+    //         // @ts-ignore
+    //         inputField.style.direction = "ltr";
+    //       }
 
-          setText();
-        } else {
-          console.error(`language ${lang} is undefine`);
-        }
-      })
-      .catch((err) => console.error(err));
+    //       setText();
+    //     } else {
+    //       console.error(`language ${lang} is undefine`);
+    //     }
+    //   })
+    //   .catch((err) => console.error(err));
   }
 
   // @ts-ignore
