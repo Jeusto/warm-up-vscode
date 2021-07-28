@@ -1,6 +1,6 @@
 {
 	"name": "warm-up-typing-test",
-	"displayName": "Warm Up - Typing test",
+	"displayName": "Warm Up - Practice typing",
 	"description": "Todo",
 	"version": "0.0.1",
 	"license": "GPL 3.0",
@@ -16,7 +16,77 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"configuration": [
+			{
+				"title": "WarmUp: Practice typing",
+				"properties": {
+					"warmup.switchLanguage": {
+						"type": "string",
+						"enum": [
+							"english",
+							"french"
+						],
+						"default": "english",
+						"description": "Choose a specific language to practice with",
+						"scope": "window"
+					}
+				}
+			},
+			{
+				"title": "WarmUp: Practice typing",
+				"properties": {
+					"warmup.switchTypingMode": {
+						"type": "string",
+						"enum": [
+							"wordcount",
+							"time"
+						],
+						"default": "wordcount",
+						"description": "Practice a set number of words or against a timer",
+						"scope": "window"
+					}
+				}
+			},
+			{
+				"title": "WarmUp: Practice typing",
+				"properties": {
+					"warmup.togglePunctuation": {
+						"type": "string",
+						"enum": [
+							"true",
+							"false"
+						],
+						"default": "false",
+						"description": "Activate/deactivate punctuation",
+						"scope": "window"
+					}
+				}
+			},
+			{
+				"title": "WarmUp: Practice typing",
+				"properties": {
+					"warmup.changeCount": {
+						"type": "string",
+						"enum": [
+							"15",
+							"30",
+							"60",
+							"120",
+							"240"
+						],
+						"default": "15",
+						"description": "Change the amount of words or the timer (depending on the typing mode)",
+						"scope": "window"
+					}
+				}
+			}
+		],
 		"commands": [
+			{
+				"command": "warmUp.start",
+				"title": "Start practicing typing",
+				"category": "WarmUp"
+			},
 			{
 				"command": "warmUp.switchLanguage",
 				"title": "Switch language",
@@ -35,11 +105,6 @@
 			{
 				"command": "warmUp.togglePunctuation",
 				"title": "Toggle punctuation",
-				"category": "WarmUp"
-			},
-			{
-				"command": "warmUp.start",
-				"title": "Start typing test",
 				"category": "WarmUp"
 			}
 		]

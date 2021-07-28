@@ -1,41 +1,123 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import {
   commands,
   window,
   ExtensionContext,
   Uri,
-  WebviewOptions,
   Webview,
   WebviewPanel,
   Disposable,
   ViewColumn,
+  ConfigurationTarget,
+  workspace,
+  WorkspaceEdit,
 } from "vscode";
 
-const cats = {
-  "Coding Cat": "https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif",
-  "Compiling Cat": "https://media.giphy.com/media/mlvseq9yvZhba/giphy.gif",
-  "Testing Cat": "https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif",
-};
-
 export function activate(context: ExtensionContext) {
+  // Fetch words from json file
+  const fs = require("fs");
+  const rawdata = fs.readFileSync(
+    `${context.extensionPath}\\media\\words.json`,
+    "utf8"
+  );
+  const data = JSON.parse(rawdata);
+  const languages = data.languages;
+  const words = data.words;
+
   // Start command
   context.subscriptions.push(
     commands.registerCommand("warmUp.start", () => {
+      // Create or show webview
       WarmUpPanel.createOrShow(context.extensionUri);
+      // Send all user settings with message
+      WarmUpPanel.currentPanel.sendAllConfigMessage();
     })
   );
 
   // Switch language command
   context.subscriptions.push(
     commands.registerCommand(
-      "samples.quickInput",
+      "warmUp.switchLanguage",
       async function showQuickPick() {
+        // Get user choice
         let i = 0;
-        const result = await window.showQuickPick(["eins", "zwei", "drei"], {
-          placeHolder: "eins, zwei or drei",
+        const userChoice = await window.showQuickPick(["english", "french"], {
+          placeHolder: "Choose a specific language to practice with",
           onDidSelectItem: (item) =>
             window.showInformationMessage(`Focus ${++i}: ${item}`),
         });
-        window.showInformationMessage(`Got: ${result}`);
+        window.showInformationMessage(`Got: ${userChoice}`);
+
+        // Send message to webview
+        WarmUpPanel.currentPanel.sendConfigMessage(
+          "switchLanguage",
+          userChoice
+        );
+
+        // Update the configuration value with user choice
+        await workspace
+          .getConfiguration()
+          .update(
+            "warmup.switchLanguage",
+            userChoice,
+            ConfigurationTarget.Global
+          );
+      }
+    )
+  );
+
+  // Switch typing mode command
+  context.subscriptions.push(
+    commands.registerCommand(
+      "warmUp.switchTypingMode",
+      async function showQuickPick() {
+        // Get user choice
+        const userChoice = await window.showQuickPick(["wordcount", "time"], {
+          placeHolder: "Practice a set number of words or against a timer",
+        });
+
+        // Send message to webview
+        WarmUpPanel.currentPanel.sendConfigMessage(
+          "switchTypingMode",
+          userChoice
+        );
+
+        // Update the configuration value with user choice
+        await workspace
+          .getConfiguration()
+          .update(
+            "warmup.switchTypingMode",
+            userChoice,
+            ConfigurationTarget.Global
+          );
+      }
+    )
+  );
+
+  // Toggle punctuation command
+  context.subscriptions.push(
+    commands.registerCommand(
+      "warmUp.togglePunctuation",
+      async function showQuickPick() {
+        // Get user choice
+        const userChoice = await window.showQuickPick(["false", "true"], {
+          placeHolder: "Activate/deactivate punctuation",
+        });
+
+        // Send message to webview
+        WarmUpPanel.currentPanel.sendConfigMessage(
+          "togglePunctuation",
+          userChoice
+        );
+
+        // Update the configuration value with user choice
+        await workspace
+          .getConfiguration()
+          .update(
+            "warmup.togglePunctuation",
+            userChoice,
+            ConfigurationTarget.Global
+          );
       }
     )
   );
@@ -45,21 +127,14 @@ export function activate(context: ExtensionContext) {
     window.registerWebviewPanelSerializer(WarmUpPanel.viewType, {
       async deserializeWebviewPanel(webviewPanel: WebviewPanel, state: any) {
         // Reset the webview options so we use latest uri for `localResourceRoots`.
-        webviewPanel.webview.options = getWebviewOptions(context.extensionUri);
+        webviewPanel.webview.options = {
+          enableScripts: true,
+          localResourceRoots: [Uri.joinPath(context.extensionUri, "media")],
+        };
         WarmUpPanel.revive(webviewPanel, context.extensionUri);
       },
     });
   }
-}
-
-function getWebviewOptions(extensionUri: Uri): WebviewOptions {
-  return {
-    // Enable javascript in the webview
-    enableScripts: true,
-
-    // And restrict the webview to only loading content from our extension's `media` directory.
-    localResourceRoots: [Uri.joinPath(extensionUri, "media")],
-  };
 }
 
 // Manages webview panel
@@ -88,7 +163,13 @@ class WarmUpPanel {
       WarmUpPanel.viewType,
       "WarmUp",
       column || ViewColumn.One,
-      getWebviewOptions(extensionUri)
+      {
+        // Enable javascript in the webview
+        enableScripts: true,
+
+        // And restrict the webview to only loading content from our extension's `media` directory.
+        localResourceRoots: [Uri.joinPath(extensionUri, "media")],
+      }
     );
 
     WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
@@ -96,6 +177,24 @@ class WarmUpPanel {
 
   public static revive(panel: WebviewPanel, extensionUri: Uri) {
     WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
+  }
+
+  public sendAllConfigMessage() {
+    this._panel.webview.postMessage({
+      type: "allConfig",
+      language: workspace.getConfiguration().get("warmup.switchLanguage"),
+      mode: workspace.getConfiguration().get("warmup.switchTypingMode"),
+      count: workspace.getConfiguration().get("warmup.changeCount"),
+      punctuation: workspace.getConfiguration().get("warmup.togglePunctuation"),
+    });
+  }
+
+  public sendConfigMessage(config: string, value: any) {
+    this._panel.webview.postMessage({
+      type: "singleConfig",
+      config: config,
+      value: value,
+    });
   }
 
   private constructor(panel: WebviewPanel, extensionUri: Uri) {
@@ -174,17 +273,6 @@ class WarmUpPanel {
     // Use a nonce to only allow specific scripts to be run
     const nonce = getNonce();
 
-    // Fetch words from json file
-    const wordsUri = webview.asWebviewUri(
-      Uri.joinPath(this._extensionUri, "media", "words.json")
-    );
-    const fs = require("fs");
-    const rawdata = fs.readFileSync(wordsUri.fsPath, "utf8");
-    const data = JSON.parse(rawdata);
-
-    const languages = data.languages;
-    const words = data.words;
-
     return `<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -194,7 +282,9 @@ class WarmUpPanel {
 					Use a content security policy to only allow loading images from https or from our extension directory,
 					and only allow scripts that have a specific nonce.
 				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${
+          webview.cspSource
+        }; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
 
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -202,23 +292,25 @@ class WarmUpPanel {
 				<link href="${stylesGameUri}" rel="stylesheet">
 				<link id="theme" href="${stylesThemeUri}" rel="stylesheet">
 
-				<title>Cat Coding</title>
-			</head>
+				<title>WarmUp</title>
+			</head> 
       <body>
+      ${workspace.getConfiguration().get("warmup.switchLanguage")}
+
         <h2 id="header">WarmUp</h2>
         <div id="command-center" class="">
           <div class="bar">
             <div id="left-wing">
               <span id="word-count">
-                <span id="wc-10">10</span>
+                <span id="wc-15">15</span>
                 <text> / </text>
-                <span id="wc-25">25</span>
+                <span id="wc-30">30</span>
                 <text> / </text>
-                <span id="wc-50">50</span>
+                <span id="wc-60">60</span>
                 <text> / </text>
-                <span id="wc-100">100</span>
-                <text> / </text>
-                <span id="wc-250">250</span>
+                <span id="wc-120">120</span>
+                <text> / </text
+                <span id="wc-240">240</span>
               </span>
               <span id="time-count">
                 <span id="tc-15">15</span>
