@@ -23,7 +23,8 @@ body {
   line-height: 2rem;
 }
 
-#word-count span {
+#word-count span,
+#time-count span {
   cursor: pointer;
 }
 

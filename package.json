@@ -11,22 +11,36 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:catCoding.start",
-		"onCommand:catCoding.doRefactor",
-		"onWebviewPanel:catCoding"
+		"onCommand:warmUp.start",
+		"onWebviewPanel:warmUp"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "catCoding.start",
-				"title": "Start cat coding session",
-				"category": "Cat Coding"
+				"command": "warmUp.switchLanguage",
+				"title": "Switch language",
+				"category": "WarmUp"
 			},
 			{
-				"command": "catCoding.doRefactor",
-				"title": "Do some refactoring",
-				"category": "Cat Coding"
+				"command": "warmUp.switchTypingMode",
+				"title": "Switch typing mode",
+				"category": "WarmUp"
+			},
+			{
+				"command": "warmUp.changeCount",
+				"title": "Change word/time count",
+				"category": "WarmUp"
+			},
+			{
+				"command": "warmUp.togglePunctuation",
+				"title": "Toggle punctuation",
+				"category": "WarmUp"
+			},
+			{
+				"command": "warmUp.start",
+				"title": "Start typing test",
+				"category": "WarmUp"
 			}
 		]
 	},
