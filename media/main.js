@@ -5934,8 +5934,6 @@
   let timerActive = false;
   let punctuation = false;
 
-  const vscode = acquireVsCodeApi();
-
   // Handle messages sent from the extension to the webview
   window.addEventListener("message", (event) => {
     const message = event.data;
@@ -5951,16 +5949,22 @@
     } else {
       document.getElementById("header").innerHTML =
         message.config + " > " + message.value;
-      setLanguage("french");
 
       switch (message.config) {
         case "switchLanguage":
+          setLanguage(message.value);
+          setText();
           break;
         case "switchTypingMode":
+          setTypingMode(message.value);
           break;
         case "togglePunctuation":
+          setPunctuation(message.value);
           break;
-        case "changeLanguage":
+        case "changeCount":
+          document.getElementById("header").innerHTML = typeof message.count;
+          setWordCount(message.value);
+          setTimeCount(message.value);
           break;
         default:
           break;
@@ -6033,6 +6037,7 @@
     inputField.focus();
   }
 
+  // Add punctuation to a list of words
   function addPunctuations() {
     if (wordList[0] !== undefined) {
       // Capitalize first word
@@ -6080,6 +6085,38 @@
     });
 
     textDisplay.firstChild.classList.add("highlight");
+  }
+
+  // Calculate and display result
+  function showResult() {
+    let words, minute, acc;
+    switch (typingMode) {
+      case "wordcount":
+        words = correctKeys / 5;
+        minute = (Date.now() - startDate) / 1000 / 60;
+        let totalKeys = -1;
+
+        wordList.forEach((e) => (totalKeys += e.length + 1));
+        acc = Math.floor((correctKeys / totalKeys) * 100);
+        break;
+
+      case "time":
+        words = correctKeys / 5;
+
+        minute = timeCount / 60;
+        let sumKeys = -1;
+
+        for (i = 0; i < currentWord; i++) {
+          sumKeys += wordList[i].length + 1;
+        }
+        acc = acc = Math.min(Math.floor((correctKeys / sumKeys) * 100), 100);
+    }
+
+    let wpm = Math.floor(words / minute);
+
+    document.querySelector(
+      "#right-wing"
+    ).innerHTML = `WPM: ${wpm} / ACC: ${acc}`;
   }
 
   // Key is pressed in input field
@@ -6208,62 +6245,14 @@
     }
   });
 
-  // Calculate and display result
-  function showResult() {
-    let words, minute, acc;
-    switch (typingMode) {
-      case "wordcount":
-        words = correctKeys / 5;
-        minute = (Date.now() - startDate) / 1000 / 60;
-        let totalKeys = -1;
-
-        wordList.forEach((e) => (totalKeys += e.length + 1));
-        acc = Math.floor((correctKeys / totalKeys) * 100);
-        break;
-
-      case "time":
-        words = correctKeys / 5;
-
-        minute = timeCount / 60;
-        let sumKeys = -1;
-
-        for (i = 0; i < currentWord; i++) {
-          sumKeys += wordList[i].length + 1;
-        }
-        acc = acc = Math.min(Math.floor((correctKeys / sumKeys) * 100), 100);
-    }
-
-    let wpm = Math.floor(words / minute);
-
-    document.querySelector(
-      "#right-wing"
-    ).innerHTML = `WPM: ${wpm} / ACC: ${acc}`;
-  }
-
-  // Redo button action
+  // Restart if redo button hit
   document.querySelector("#redo-button").addEventListener("click", (e) => {
     setText(e);
   });
 
-  // Command actions
+  // Restart if escape key hit
   document.addEventListener("keydown", (e) => {
-    // Modifiers Windows: [Alt], Mac: [Cmd + Ctrl]
-    if (e.altKey || (e.metaKey && e.ctrlKey)) {
-      // [mod + l] => Change the language
-      if (e.key === "l") {
-        setLanguage(inputField.value);
-      }
-
-      // [mod + m] => Change the typing mode
-      if (e.key === "m") {
-        setTypingMode(inputField.value);
-      }
-
-      // [mod + p] => Change punctuation active
-      if (e.key === "p") {
-        setPunctuation(inputField.value);
-      }
-    } else if (e.key === "Escape") {
+    if (e.key === "Escape") {
       setText(e);
     }
   });
@@ -6300,7 +6289,7 @@
     setTimeCount(240);
   });
 
-  // Functions
+  // Functions to change configurations
   function setLanguage(lang) {
     randomWords = random[lang];
   }

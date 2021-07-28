@@ -59,6 +59,19 @@ function activate(context) {
             .getConfiguration()
             .update("warmup.togglePunctuation", userChoice, vscode_1.ConfigurationTarget.Global);
     }));
+    // Change word/time count
+    context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.changeCount", async function showQuickPick() {
+        // Get user choice
+        const userChoice = await vscode_1.window.showQuickPick(["15", "30", "60", "120", "240"], {
+            placeHolder: "Change the amount of words or the timer (depending on the typing mode)",
+        });
+        // Send message to webview
+        WarmUpPanel.currentPanel.sendConfigMessage("changeCount", userChoice);
+        // Update the configuration value with user choice
+        await vscode_1.workspace
+            .getConfiguration()
+            .update("warmup.changeCount", userChoice, vscode_1.ConfigurationTarget.Global);
+    }));
     if (vscode_1.window.registerWebviewPanelSerializer) {
         // Make sure we register a serializer in activation event
         vscode_1.window.registerWebviewPanelSerializer(WarmUpPanel.viewType, {

@@ -122,6 +122,31 @@ export function activate(context: ExtensionContext) {
     )
   );
 
+  // Change word/time count
+  context.subscriptions.push(
+    commands.registerCommand(
+      "warmUp.changeCount",
+      async function showQuickPick() {
+        // Get user choice
+        const userChoice = await window.showQuickPick(
+          ["15", "30", "60", "120", "240"],
+          {
+            placeHolder:
+              "Change the amount of words or the timer (depending on the typing mode)",
+          }
+        );
+
+        // Send message to webview
+        WarmUpPanel.currentPanel.sendConfigMessage("changeCount", userChoice);
+
+        // Update the configuration value with user choice
+        await workspace
+          .getConfiguration()
+          .update("warmup.changeCount", userChoice, ConfigurationTarget.Global);
+      }
+    )
+  );
+
   if (window.registerWebviewPanelSerializer) {
     // Make sure we register a serializer in activation event
     window.registerWebviewPanelSerializer(WarmUpPanel.viewType, {
