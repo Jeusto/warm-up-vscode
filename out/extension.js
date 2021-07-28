@@ -1,24 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = void 0;
-const vscode = require("vscode");
+const vscode_1 = require("vscode");
 const cats = {
     "Coding Cat": "https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif",
     "Compiling Cat": "https://media.giphy.com/media/mlvseq9yvZhba/giphy.gif",
     "Testing Cat": "https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif",
 };
 function activate(context) {
-    context.subscriptions.push(vscode.commands.registerCommand("warmUp.start", () => {
+    // Start command
+    context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.start", () => {
         WarmUpPanel.createOrShow(context.extensionUri);
     }));
-    context.subscriptions.push(vscode.commands.registerCommand("warmUp.switchLanguage", () => {
-        if (WarmUpPanel.currentPanel) {
-            //WarmUpPanel.currentPanel.doRefactor();
-        }
+    // Switch language command
+    context.subscriptions.push(vscode_1.commands.registerCommand("samples.quickInput", async function showQuickPick() {
+        let i = 0;
+        const result = await vscode_1.window.showQuickPick(["eins", "zwei", "drei"], {
+            placeHolder: "eins, zwei or drei",
+            onDidSelectItem: (item) => vscode_1.window.showInformationMessage(`Focus ${++i}: ${item}`),
+        });
+        vscode_1.window.showInformationMessage(`Got: ${result}`);
     }));
-    if (vscode.window.registerWebviewPanelSerializer) {
+    if (vscode_1.window.registerWebviewPanelSerializer) {
         // Make sure we register a serializer in activation event
-        vscode.window.registerWebviewPanelSerializer(WarmUpPanel.viewType, {
+        vscode_1.window.registerWebviewPanelSerializer(WarmUpPanel.viewType, {
             async deserializeWebviewPanel(webviewPanel, state) {
                 // Reset the webview options so we use latest uri for `localResourceRoots`.
                 webviewPanel.webview.options = getWebviewOptions(context.extensionUri);
@@ -33,7 +38,7 @@ function getWebviewOptions(extensionUri) {
         // Enable javascript in the webview
         enableScripts: true,
         // And restrict the webview to only loading content from our extension's `media` directory.
-        localResourceRoots: [vscode.Uri.joinPath(extensionUri, "media")],
+        localResourceRoots: [vscode_1.Uri.joinPath(extensionUri, "media")],
     };
 }
 // Manages webview panel
@@ -57,14 +62,14 @@ class WarmUpPanel {
         this._panel.webview.onDidReceiveMessage((message) => {
             switch (message.command) {
                 case "alert":
-                    vscode.window.showErrorMessage(message.text);
+                    vscode_1.window.showErrorMessage(message.text);
                     return;
             }
         }, null, this._disposables);
     }
     static createOrShow(extensionUri) {
-        const column = vscode.window.activeTextEditor
-            ? vscode.window.activeTextEditor.viewColumn
+        const column = vscode_1.window.activeTextEditor
+            ? vscode_1.window.activeTextEditor.viewColumn
             : undefined;
         // If we already have a panel, show it.
         if (WarmUpPanel.currentPanel) {
@@ -72,7 +77,7 @@ class WarmUpPanel {
             return;
         }
         // Otherwise, create a new panel.
-        const panel = vscode.window.createWebviewPanel(WarmUpPanel.viewType, "WarmUp", column || vscode.ViewColumn.One, getWebviewOptions(extensionUri));
+        const panel = vscode_1.window.createWebviewPanel(WarmUpPanel.viewType, "WarmUp", column || vscode_1.ViewColumn.One, getWebviewOptions(extensionUri));
         WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
     }
     static revive(panel, extensionUri) {
@@ -96,15 +101,15 @@ class WarmUpPanel {
     }
     _getHtmlForWebview(webview) {
         // Uri we use to load this script in the webview
-        const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "media", "main.js"));
+        const scriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "main.js"));
         // Uri to load styles into webview
-        const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "media", "vscode.css"));
-        const stylesGameUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "media", "game.css"));
-        const stylesThemeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "media", "theme.css"));
+        const styleVSCodeUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "vscode.css"));
+        const stylesGameUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "game.css"));
+        const stylesThemeUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "theme.css"));
         // Use a nonce to only allow specific scripts to be run
         const nonce = getNonce();
         // Fetch words from json file
-        const wordsUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "media", "words.json"));
+        const wordsUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "words.json"));
         const fs = require("fs");
         const rawdata = fs.readFileSync(wordsUri.fsPath, "utf8");
         const data = JSON.parse(rawdata);
