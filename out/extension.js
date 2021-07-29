@@ -5,12 +5,20 @@ exports.activate = void 0;
 // This script will be run within VS Code
 // It can access the main VS Code APIs directly
 const vscode_1 = require("vscode");
+let myStatusBarItem;
 function activate(context) {
     // Fetch words from json file
     const fs = require("fs");
     const rawdata = fs.readFileSync(`${context.extensionPath}\\media\\words.json`, "utf8");
     const data = JSON.parse(rawdata);
     const words = data.words;
+    // Add status bar icon
+    myStatusBarItem = vscode_1.window.createStatusBarItem(vscode_1.StatusBarAlignment.Left, 1);
+    myStatusBarItem.command = "warmUp.start";
+    context.subscriptions.push(myStatusBarItem);
+    // Display status bar icon
+    myStatusBarItem.text = `$(record-keys) Warm Up`;
+    myStatusBarItem.show();
     // Start command
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.start", () => {
         // Create or show webview

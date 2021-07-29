@@ -2,17 +2,21 @@
 // This script will be run within VS Code
 // It can access the main VS Code APIs directly
 import {
-  commands,
-  window,
-  ExtensionContext,
   Uri,
   Webview,
-  WebviewPanel,
   Disposable,
   ViewColumn,
+  WebviewPanel,
+  StatusBarItem,
+  ExtensionContext,
   ConfigurationTarget,
+  StatusBarAlignment,
+  window,
+  commands,
   workspace,
 } from "vscode";
+
+let myStatusBarItem: StatusBarItem;
 
 export function activate(context: ExtensionContext) {
   // Fetch words from json file
@@ -23,6 +27,15 @@ export function activate(context: ExtensionContext) {
   );
   const data = JSON.parse(rawdata);
   const words = data.words;
+
+  // Add status bar icon
+  myStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 1);
+  myStatusBarItem.command = "warmUp.start";
+  context.subscriptions.push(myStatusBarItem);
+
+  // Display status bar icon
+  myStatusBarItem.text = `$(record-keys) Warm Up`;
+  myStatusBarItem.show();
 
   // Start command
   context.subscriptions.push(
