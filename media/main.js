@@ -9,7 +9,6 @@
 
   // Initialize typing mode variables
   let typingMode = "wordcount";
-  let count;
   let wordCount;
   let timeCount;
 
@@ -50,6 +49,7 @@
         mode: message.mode,
         punctuation: message.punctuation,
       });
+      previousState = vscode.getState();
 
       // Change words list and settings
       allWords = message.words;
