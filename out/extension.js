@@ -38,12 +38,14 @@ function activate(context) {
         ], {
             placeHolder: "Choose a specific language to practice with",
         });
-        // Send message to webview
-        WarmUpPanel.currentPanel.sendConfigMessage("switchLanguage", userChoice);
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.switchLanguage", userChoice, vscode_1.ConfigurationTarget.Global);
+        // Send message to webview if it exists
+        if (WarmUpPanel.currentPanel) {
+            WarmUpPanel.currentPanel.sendConfigMessage("switchLanguage", userChoice);
+        }
     }));
     // Switch typing mode command
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.switchTypingMode", async function showQuickPick() {
@@ -51,12 +53,14 @@ function activate(context) {
         const userChoice = await vscode_1.window.showQuickPick(["wordcount", "time"], {
             placeHolder: "Practice a set number of words or against a timer",
         });
-        // Send message to webview
-        WarmUpPanel.currentPanel.sendConfigMessage("switchTypingMode", userChoice);
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.switchTypingMode", userChoice, vscode_1.ConfigurationTarget.Global);
+        // Send message to webview if it exists
+        if (WarmUpPanel.currentPanel) {
+            WarmUpPanel.currentPanel.sendConfigMessage("switchTypingMode", userChoice);
+        }
     }));
     // Toggle punctuation command
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.togglePunctuation", async function showQuickPick() {
@@ -64,12 +68,14 @@ function activate(context) {
         const userChoice = await vscode_1.window.showQuickPick(["false", "true"], {
             placeHolder: "Activate/deactivate punctuation",
         });
-        // Send message to webview
-        WarmUpPanel.currentPanel.sendConfigMessage("togglePunctuation", userChoice);
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.togglePunctuation", userChoice, vscode_1.ConfigurationTarget.Global);
+        // Send message to webview if it exists
+        if (WarmUpPanel.currentPanel) {
+            WarmUpPanel.currentPanel.sendConfigMessage("togglePunctuation", userChoice);
+        }
     }));
     // Change word/time count
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.changeCount", async function showQuickPick() {
@@ -77,12 +83,14 @@ function activate(context) {
         const userChoice = await vscode_1.window.showQuickPick(["15", "30", "60", "120", "240"], {
             placeHolder: "Change the amount of words or the timer (depending on the typing mode)",
         });
-        // Send message to webview
-        WarmUpPanel.currentPanel.sendConfigMessage("changeCount", userChoice);
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.changeCount", userChoice, vscode_1.ConfigurationTarget.Global);
+        // Send message to webview if it exists
+        if (WarmUpPanel.currentPanel) {
+            WarmUpPanel.currentPanel.sendConfigMessage("changeCount", userChoice);
+        }
     }));
     // Register webview panel serializer
     if (vscode_1.window.registerWebviewPanelSerializer) {
@@ -107,7 +115,7 @@ class WarmUpPanel {
         this._panel = panel;
         this._extensionUri = extensionUri;
         // Set the webview's initial html content
-        this._update();
+        this.update();
         // Listen for when the panel is disposed
         // This happens when the user closes the panel or when the panel is closed programmatically
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
@@ -172,12 +180,12 @@ class WarmUpPanel {
             }
         }
     }
-    _update() {
+    update() {
         const webview = this._panel.webview;
-        this._panel.webview.html = this._getHtmlForWebview(webview);
+        this._panel.webview.html = this.getHtmlForWebview(webview);
         this._panel.title = "Warm Up";
     }
-    _getHtmlForWebview(webview) {
+    getHtmlForWebview(webview) {
         // Uri we use to load this script in the webview
         const scriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "main.js"));
         // Uri to load styles into webview
@@ -257,6 +265,9 @@ class WarmUpPanel {
         <script nonce="${nonce}" src="${scriptUri}"></script>
       </body>
 			</html>`;
+    }
+    panelExists() {
+        return WarmUpPanel.currentPanel !== undefined;
     }
 }
 WarmUpPanel.viewType = "warmUp";

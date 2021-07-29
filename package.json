@@ -12,7 +12,8 @@
 	],
 	"activationEvents": [
 		"onCommand:warmUp.start",
-		"onWebviewPanel:warmUp"
+		"onWebviewPanel:warmUp",
+		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
 	"contributes": {

@@ -61,12 +61,6 @@ export function activate(context: ExtensionContext) {
           }
         );
 
-        // Send message to webview
-        WarmUpPanel.currentPanel.sendConfigMessage(
-          "switchLanguage",
-          userChoice
-        );
-
         // Update the configuration value with user choice
         await workspace
           .getConfiguration()
@@ -75,6 +69,14 @@ export function activate(context: ExtensionContext) {
             userChoice,
             ConfigurationTarget.Global
           );
+
+        // Send message to webview if it exists
+        if (WarmUpPanel.currentPanel) {
+          WarmUpPanel.currentPanel.sendConfigMessage(
+            "switchLanguage",
+            userChoice
+          );
+        }
       }
     )
   );
@@ -89,12 +91,6 @@ export function activate(context: ExtensionContext) {
           placeHolder: "Practice a set number of words or against a timer",
         });
 
-        // Send message to webview
-        WarmUpPanel.currentPanel.sendConfigMessage(
-          "switchTypingMode",
-          userChoice
-        );
-
         // Update the configuration value with user choice
         await workspace
           .getConfiguration()
@@ -103,6 +99,14 @@ export function activate(context: ExtensionContext) {
             userChoice,
             ConfigurationTarget.Global
           );
+
+        // Send message to webview if it exists
+        if (WarmUpPanel.currentPanel) {
+          WarmUpPanel.currentPanel.sendConfigMessage(
+            "switchTypingMode",
+            userChoice
+          );
+        }
       }
     )
   );
@@ -117,12 +121,6 @@ export function activate(context: ExtensionContext) {
           placeHolder: "Activate/deactivate punctuation",
         });
 
-        // Send message to webview
-        WarmUpPanel.currentPanel.sendConfigMessage(
-          "togglePunctuation",
-          userChoice
-        );
-
         // Update the configuration value with user choice
         await workspace
           .getConfiguration()
@@ -131,6 +129,14 @@ export function activate(context: ExtensionContext) {
             userChoice,
             ConfigurationTarget.Global
           );
+
+        // Send message to webview if it exists
+        if (WarmUpPanel.currentPanel) {
+          WarmUpPanel.currentPanel.sendConfigMessage(
+            "togglePunctuation",
+            userChoice
+          );
+        }
       }
     )
   );
@@ -149,13 +155,15 @@ export function activate(context: ExtensionContext) {
           }
         );
 
-        // Send message to webview
-        WarmUpPanel.currentPanel.sendConfigMessage("changeCount", userChoice);
-
         // Update the configuration value with user choice
         await workspace
           .getConfiguration()
           .update("warmUp.changeCount", userChoice, ConfigurationTarget.Global);
+
+        // Send message to webview if it exists
+        if (WarmUpPanel.currentPanel) {
+          WarmUpPanel.currentPanel.sendConfigMessage("changeCount", userChoice);
+        }
       }
     )
   );
@@ -185,6 +193,37 @@ class WarmUpPanel {
   private readonly _panel: WebviewPanel;
   private readonly _extensionUri: Uri;
   private _disposables: Disposable[] = [];
+
+  private constructor(panel: WebviewPanel, extensionUri: Uri) {
+    this._panel = panel;
+    this._extensionUri = extensionUri;
+
+    // Set the webview's initial html content
+    this.update();
+
+    // Listen for when the panel is disposed
+    // This happens when the user closes the panel or when the panel is closed programmatically
+    this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+
+    // Handle messages from the webview
+    this._panel.webview.onDidReceiveMessage(
+      async (message) => {
+        switch (message.command) {
+          case "changeCount":
+            // Update the configuration value with user choice
+            await workspace
+              .getConfiguration()
+              .update(
+                "warmUp.changeCount",
+                message.count.toString(),
+                ConfigurationTarget.Global
+              );
+        }
+      },
+      null,
+      this._disposables
+    );
+  }
 
   public static createOrShow(extensionUri: Uri) {
     const column = window.activeTextEditor
@@ -238,37 +277,6 @@ class WarmUpPanel {
     });
   }
 
-  private constructor(panel: WebviewPanel, extensionUri: Uri) {
-    this._panel = panel;
-    this._extensionUri = extensionUri;
-
-    // Set the webview's initial html content
-    this._update();
-
-    // Listen for when the panel is disposed
-    // This happens when the user closes the panel or when the panel is closed programmatically
-    this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-
-    // Handle messages from the webview
-    this._panel.webview.onDidReceiveMessage(
-      async (message) => {
-        switch (message.command) {
-          case "changeCount":
-            // Update the configuration value with user choice
-            await workspace
-              .getConfiguration()
-              .update(
-                "warmUp.changeCount",
-                message.count.toString(),
-                ConfigurationTarget.Global
-              );
-        }
-      },
-      null,
-      this._disposables
-    );
-  }
-
   public dispose() {
     WarmUpPanel.currentPanel = undefined;
 
@@ -283,13 +291,13 @@ class WarmUpPanel {
     }
   }
 
-  private _update() {
+  private update() {
     const webview = this._panel.webview;
-    this._panel.webview.html = this._getHtmlForWebview(webview);
+    this._panel.webview.html = this.getHtmlForWebview(webview);
     this._panel.title = "Warm Up";
   }
 
-  private _getHtmlForWebview(webview: Webview) {
+  private getHtmlForWebview(webview: Webview) {
     // Uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "main.js")
@@ -380,6 +388,10 @@ class WarmUpPanel {
         <script nonce="${nonce}" src="${scriptUri}"></script>
       </body>
 			</html>`;
+  }
+
+  public panelExists() {
+    return WarmUpPanel.currentPanel !== undefined;
   }
 }
 
