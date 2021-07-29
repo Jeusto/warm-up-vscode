@@ -17,10 +17,24 @@ body {
   justify-content: space-between;
 }
 
+#top {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 #header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 0;
   margin: 1.2rem 0 0 0;
   line-height: 2rem;
+}
+
+#icon {
+  margin-right: 0.5rem;
 }
 
 #word-count span,

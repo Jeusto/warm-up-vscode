@@ -15,6 +15,11 @@ body {
   font-family: var(--vscode-editor-font-family);
 }
 
+svg {
+  width: calc(var(--vscode-font-size) * 1.75);
+  stroke: var(--vscode-foreground);
+}
+
 ol,
 ul {
   padding-left: var(--container-paddding);

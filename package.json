@@ -1,5 +1,5 @@
 {
-	"name": "warm-up-typing-test",
+	"name": "warm-up-typing-practice",
 	"displayName": "Warm Up - Practice typing",
 	"description": "Todo",
 	"version": "0.0.1",
@@ -18,13 +18,25 @@
 	"contributes": {
 		"configuration": [
 			{
-				"title": "WarmUp: Practice typing",
+				"title": "Warm Up: Practice typing",
 				"properties": {
-					"warmup.switchLanguage": {
+					"warmUp.switchLanguage": {
 						"type": "string",
 						"enum": [
 							"english",
-							"french"
+							"italian",
+							"german",
+							"spanish",
+							"chinese",
+							"korean",
+							"englishTop100",
+							"polish",
+							"punjabi",
+							"swedish",
+							"french",
+							"portuguese",
+							"russian",
+							"finnish"
 						],
 						"default": "english",
 						"description": "Choose a specific language to practice with",
@@ -33,9 +45,9 @@
 				}
 			},
 			{
-				"title": "WarmUp: Practice typing",
+				"title": "Warm Up: Practice typing",
 				"properties": {
-					"warmup.switchTypingMode": {
+					"warmUp.switchTypingMode": {
 						"type": "string",
 						"enum": [
 							"wordcount",
@@ -48,9 +60,9 @@
 				}
 			},
 			{
-				"title": "WarmUp: Practice typing",
+				"title": "Warm Up: Practice typing",
 				"properties": {
-					"warmup.togglePunctuation": {
+					"warmUp.togglePunctuation": {
 						"type": "string",
 						"enum": [
 							"true",
@@ -63,9 +75,9 @@
 				}
 			},
 			{
-				"title": "WarmUp: Practice typing",
+				"title": "Warm Up: Practice typing",
 				"properties": {
-					"warmup.changeCount": {
+					"warmUp.changeCount": {
 						"type": "string",
 						"enum": [
 							"15",
@@ -85,27 +97,27 @@
 			{
 				"command": "warmUp.start",
 				"title": "Start practicing typing",
-				"category": "WarmUp"
+				"category": "Warm Up"
 			},
 			{
 				"command": "warmUp.switchLanguage",
 				"title": "Switch language",
-				"category": "WarmUp"
+				"category": "Warm Up"
 			},
 			{
 				"command": "warmUp.switchTypingMode",
 				"title": "Switch typing mode",
-				"category": "WarmUp"
+				"category": "Warm Up"
 			},
 			{
 				"command": "warmUp.changeCount",
 				"title": "Change word/time count",
-				"category": "WarmUp"
+				"category": "Warm Up"
 			},
 			{
 				"command": "warmUp.togglePunctuation",
 				"title": "Toggle punctuation",
-				"category": "WarmUp"
+				"category": "Warm Up"
 			}
 		]
 	},
@@ -115,7 +127,6 @@
 		"lint": "eslint . --ext .ts,.tsx",
 		"watch": "tsc -w -p ./"
 	},
-	"dependencies": {},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
 		"@types/vscode": "^1.47.0",

@@ -1,19 +1,19 @@
 {
   "languages": [
-    "English",
-    "Italian",
-    "German",
-    "Spanish",
-    "Chinese",
-    "Korean",
-    "English (Top 1000 words)",
-    "Polish",
-    "Punjabi",
-    "Swedish",
-    "French",
-    "Portuguese",
-    "Russian",
-    "Finnish"
+    "english",
+    "italian",
+    "german",
+    "spanish",
+    "chinese",
+    "korean",
+    "englishTop1000",
+    "polish",
+    "punjabi",
+    "swedish",
+    "french",
+    "portuguese",
+    "russian",
+    "finnish"
   ],
   "words": {
     "english": [

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+// This script will be run within VS Code
+// It can access the main VS Code APIs directly
 import {
   commands,
   window,
@@ -10,7 +12,6 @@ import {
   ViewColumn,
   ConfigurationTarget,
   workspace,
-  WorkspaceEdit,
 } from "vscode";
 
 export function activate(context: ExtensionContext) {
@@ -30,7 +31,7 @@ export function activate(context: ExtensionContext) {
       // Create or show webview
       WarmUpPanel.createOrShow(context.extensionUri);
       // Send all user settings with message
-      WarmUpPanel.currentPanel.sendAllConfigMessage();
+      WarmUpPanel.currentPanel.sendAllConfigMessage(words);
     })
   );
 
@@ -39,14 +40,27 @@ export function activate(context: ExtensionContext) {
     commands.registerCommand(
       "warmUp.switchLanguage",
       async function showQuickPick() {
-        // Get user choice
-        let i = 0;
-        const userChoice = await window.showQuickPick(["english", "french"], {
-          placeHolder: "Choose a specific language to practice with",
-          onDidSelectItem: (item) =>
-            window.showInformationMessage(`Focus ${++i}: ${item}`),
-        });
-        window.showInformationMessage(`Got: ${userChoice}`);
+        const userChoice = await window.showQuickPick(
+          [
+            "english",
+            "italian",
+            "german",
+            "spanish",
+            "chinese",
+            "korean",
+            "englishTop100",
+            "polish",
+            "punjabi",
+            "swedish",
+            "french",
+            "portuguese",
+            "russian",
+            "finnish",
+          ],
+          {
+            placeHolder: "Choose a specific language to practice with",
+          }
+        );
 
         // Send message to webview
         WarmUpPanel.currentPanel.sendConfigMessage(
@@ -58,7 +72,7 @@ export function activate(context: ExtensionContext) {
         await workspace
           .getConfiguration()
           .update(
-            "warmup.switchLanguage",
+            "warmUp.switchLanguage",
             userChoice,
             ConfigurationTarget.Global
           );
@@ -86,7 +100,7 @@ export function activate(context: ExtensionContext) {
         await workspace
           .getConfiguration()
           .update(
-            "warmup.switchTypingMode",
+            "warmUp.switchTypingMode",
             userChoice,
             ConfigurationTarget.Global
           );
@@ -114,7 +128,7 @@ export function activate(context: ExtensionContext) {
         await workspace
           .getConfiguration()
           .update(
-            "warmup.togglePunctuation",
+            "warmUp.togglePunctuation",
             userChoice,
             ConfigurationTarget.Global
           );
@@ -142,11 +156,12 @@ export function activate(context: ExtensionContext) {
         // Update the configuration value with user choice
         await workspace
           .getConfiguration()
-          .update("warmup.changeCount", userChoice, ConfigurationTarget.Global);
+          .update("warmUp.changeCount", userChoice, ConfigurationTarget.Global);
       }
     )
   );
 
+  // Register webview panel serializer
   if (window.registerWebviewPanelSerializer) {
     // Make sure we register a serializer in activation event
     window.registerWebviewPanelSerializer(WarmUpPanel.viewType, {
@@ -186,7 +201,7 @@ class WarmUpPanel {
     // Otherwise, create a new panel.
     const panel = window.createWebviewPanel(
       WarmUpPanel.viewType,
-      "WarmUp",
+      "Warm Up",
       column || ViewColumn.One,
       {
         // Enable javascript in the webview
@@ -204,13 +219,14 @@ class WarmUpPanel {
     WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
   }
 
-  public sendAllConfigMessage() {
+  public sendAllConfigMessage(words) {
     this._panel.webview.postMessage({
       type: "allConfig",
-      language: workspace.getConfiguration().get("warmup.switchLanguage"),
-      mode: workspace.getConfiguration().get("warmup.switchTypingMode"),
-      count: workspace.getConfiguration().get("warmup.changeCount"),
-      punctuation: workspace.getConfiguration().get("warmup.togglePunctuation"),
+      words: words,
+      language: workspace.getConfiguration().get("warmUp.switchLanguage"),
+      mode: workspace.getConfiguration().get("warmUp.switchTypingMode"),
+      count: workspace.getConfiguration().get("warmUp.changeCount"),
+      punctuation: workspace.getConfiguration().get("warmUp.togglePunctuation"),
     });
   }
 
@@ -246,11 +262,17 @@ class WarmUpPanel {
 
     // Handle messages from the webview
     this._panel.webview.onDidReceiveMessage(
-      (message) => {
+      async (message) => {
         switch (message.command) {
-          case "alert":
-            window.showErrorMessage(message.text);
-            return;
+          case "changeCount":
+            // Update the configuration value with user choice
+            await workspace
+              .getConfiguration()
+              .update(
+                "warmUp.changeCount",
+                message.count.toString(),
+                ConfigurationTarget.Global
+              );
         }
       },
       null,
@@ -275,7 +297,7 @@ class WarmUpPanel {
   private _update() {
     const webview = this._panel.webview;
     this._panel.webview.html = this._getHtmlForWebview(webview);
-    this._panel.title = "WarmUp";
+    this._panel.title = "Warm Up";
   }
 
   private _getHtmlForWebview(webview: Webview) {
@@ -307,23 +329,28 @@ class WarmUpPanel {
 					Use a content security policy to only allow loading images from https or from our extension directory,
 					and only allow scripts that have a specific nonce.
 				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${
-          webview.cspSource
-        }; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
 
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 				<link href="${styleVSCodeUri}" rel="stylesheet">
 				<link href="${stylesGameUri}" rel="stylesheet">
-				<link id="theme" href="${stylesThemeUri}" rel="stylesheet">
+				<link href="${stylesThemeUri}" rel="stylesheet">
 
-				<title>WarmUp</title>
+				<title>Warm Up</title>
 			</head> 
       <body>
-      ${workspace.getConfiguration().get("warmup.switchLanguage")}
+        <div id="top">
+          <h2 id="header">
+            <svg id="icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+             <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" />
+            </svg>
+            Warm Up - Practice typing
+          </h2>
+          <p>Hit "ctrl+shift+p" and enter "warmup" to see available commands</p>
+        </div>
 
-        <h2 id="header">WarmUp</h2>
-        <div id="command-center" class="">
+        <div id="command-center">
           <div class="bar">
             <div id="left-wing">
               <span id="word-count">
@@ -334,7 +361,7 @@ class WarmUpPanel {
                 <span id="wc-60">60</span>
                 <text> / </text>
                 <span id="wc-120">120</span>
-                <text> / </text
+                <text> / </text>
                 <span id="wc-240">240</span>
               </span>
               <span id="time-count">
@@ -359,15 +386,14 @@ class WarmUpPanel {
             </div>
           </div>
         </div>
-
-        <h1 id="lines-of-code-counter">0</h1>
-
+        <h1 id="lines-of-code-counter"></h1>
         <script nonce="${nonce}" src="${scriptUri}"></script>
       </body>
 			</html>`;
   }
 }
 
+// Function to generate nonce
 function getNonce() {
   let text = "";
   const possible =
