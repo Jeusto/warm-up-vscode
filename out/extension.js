@@ -10,7 +10,7 @@ let myStatusBarItem;
 function activate(context) {
     // Fetch words from json file
     const fs = require("fs");
-    const rawdata = fs.readFileSync(`${context.extensionPath}\\media\\words.json`, "utf8");
+    const rawdata = fs.readFileSync(`${context.extensionPath}/media/words.json`, "utf8");
     const data = JSON.parse(rawdata);
     const words = data.words;
     // Add status bar icon
