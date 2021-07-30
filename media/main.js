@@ -358,8 +358,8 @@
     }
   });
 
-  // Restart if redo button hit
-  document.querySelector("#redo-button").addEventListener("click", (e) => {
+  // Restart if restart button hit
+  document.querySelector("#restart-button").addEventListener("click", (e) => {
     setText(e);
   });
 

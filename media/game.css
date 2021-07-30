@@ -81,7 +81,7 @@ body {
   font-size: 1.2rem;
 }
 
-#redo-button {
+#restart-button {
   margin-left: 0.7rem;
   border: none;
   font: inherit;
@@ -122,7 +122,7 @@ body,
 #theme-area,
 #theme-center,
 #text-display,
-#redo-button,
+#restart-button,
 #footer,
 #highlight {
   transition: all 0.4s ease-in-out 0s;

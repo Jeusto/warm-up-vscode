@@ -6,7 +6,7 @@ body {
 #left-wing,
 #right-wing,
 #text-display,
-#redo-button,
+#restart-button,
 #input-field {
   color: var(--vscode-foreground);
 }
@@ -17,7 +17,7 @@ body {
   color: var(--vscode-button-foreground);
 }
 
-#redo-button,
+#restart-button,
 #input-field {
   background-color: var(--vscode-editor-background);
   color: var(--vscode-foreground);

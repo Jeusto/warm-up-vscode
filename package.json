@@ -1,9 +1,29 @@
 {
-	"name": "warm-up-typing-practice",
-	"displayName": "Warm Up - Practice typing",
-	"description": "Todo",
-	"version": "0.0.1",
+	"name": "warm-up-typing-test",
+	"displayName": "Warm Up - Typing test",
+	"publisher": "Jeusto",
+	"description": "🔥👨‍💻 Improve your typing speed by practicing right inside your code editor.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Jeusto/vscode-typing-test"
+	},
+	"icon": "icon.png",
+	"version": "0.1.0",
 	"license": "GPL 3.0",
+	"keywords": [
+		"arhun saday",
+		"jeusto",
+		"warm up",
+		"warmup",
+		"typing",
+		"typing speed",
+		"improve typing",
+		"keyboard",
+		"practice typing",
+		"typing-test",
+		"practice",
+		"typing"
+	],
 	"engines": {
 		"vscode": "^1.47.0"
 	},
@@ -30,17 +50,18 @@
 							"spanish",
 							"chinese",
 							"korean",
-							"englishTop1000",
 							"polish",
 							"punjabi",
 							"swedish",
 							"french",
 							"portuguese",
 							"russian",
-							"finnish"
+							"finnish",
+							"englishTop1000",
+							"javascriptTemp"
 						],
 						"default": "english",
-						"description": "Choose a specific language to practice with",
+						"description": "Choose a specific language to practice with.",
 						"scope": "window"
 					}
 				}
@@ -55,7 +76,7 @@
 							"time"
 						],
 						"default": "wordcount",
-						"description": "Practice a set number of words or against a timer",
+						"description": "Practice a set number of words or against a timer.",
 						"scope": "window"
 					}
 				}
@@ -70,7 +91,7 @@
 							"false"
 						],
 						"default": "false",
-						"description": "Activate/deactivate punctuation",
+						"description": "Activate/deactivate punctuation.",
 						"scope": "window"
 					}
 				}
@@ -88,7 +109,7 @@
 							"240"
 						],
 						"default": "15",
-						"description": "Change the amount of words or the timer (depending on the typing mode)",
+						"description": "Change the amount of words or the timer (depending on the typing mode).",
 						"scope": "window"
 					}
 				}
