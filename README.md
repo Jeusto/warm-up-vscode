@@ -9,7 +9,7 @@
 
 ## Overview
 
-![demo](demo.gif)
+![demo](https://raw.githubusercontent.com/Jeusto/vscode-typing-test/master/demo.gif?token=APQ6BVDI4QHTPKVR7TTHYOLBBSL26)
 
 ### Start
 
