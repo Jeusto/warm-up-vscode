@@ -5,7 +5,6 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  line-height: 1.6rem;
 }
 
 *[onclick] {
@@ -15,6 +14,12 @@ body {
 .bar {
   display: flex;
   justify-content: space-between;
+}
+
+.codeButton {
+  position: fixed;
+  bottom: calc(var(--vscode-editor-font-size) * 2);
+  right: calc(var(--vscode-editor-font-size) * 2);
 }
 
 #top {
@@ -33,17 +38,6 @@ body {
   line-height: 2rem;
 }
 
-#mode-buttons {
-  margin-right: 0.5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.icon-button {
-  cursor: pointer;
-}
-
 #word-count span,
 #time-count span {
   cursor: pointer;
@@ -51,8 +45,6 @@ body {
 
 #command-center {
   margin: 0 0.4rem;
-  width: 100%;
-  max-width: 40rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -64,6 +56,17 @@ body {
   margin-top: 1rem;
   padding: 1.4rem 1rem;
   border-radius: 0.4rem;
+}
+
+#typing-area {
+  width: 80vw;
+  max-width: 45rem;
+}
+#coding-area {
+  width: 80vw;
+  max-width: 60rem;
+  max-height: 60vh;
+  overflow: scroll;
 }
 
 #text-display,
@@ -112,4 +115,44 @@ body,
 
 #code-display {
   height: 3.2rem;
+}
+
+.code {
+  position: relative;
+}
+
+.charDiv {
+  display: inline;
+  overflow: hidden;
+}
+
+.char {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  width: fit-content;
+
+  font-family: var(--vscode-editor-font-family);
+}
+
+.char.topass {
+  opacity: 0.7;
+}
+
+.char.notpassed {
+  background: #e05561;
+}
+
+#cursor {
+  display: inline-block;
+  position: absolute;
+  background: #8cc265;
+  opacity: 0.6;
+  top: 0;
+  height: calc(var(--vscode-editor-font-size) * 1.25);
+  width: calc(var(--vscode-editor-font-size) * 0.5578);
+}
+
+.hide {
+  display: none;
 }

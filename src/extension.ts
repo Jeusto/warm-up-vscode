@@ -2,9 +2,6 @@
 // It can access the main VS Code APIs directly
 import {
   Uri,
-  Webview,
-  Disposable,
-  ViewColumn,
   WebviewPanel,
   StatusBarItem,
   ExtensionContext,
@@ -17,7 +14,7 @@ import {
 
 import WarmUpPanel from "./webviewPanel/webviewPanel";
 
-// Init the extension
+// Init the status bar icon
 let myStatusBarItem: StatusBarItem;
 
 // Function called after activation event

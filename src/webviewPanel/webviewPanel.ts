@@ -4,25 +4,21 @@ import {
   Disposable,
   ViewColumn,
   WebviewPanel,
-  StatusBarItem,
-  ExtensionContext,
   ConfigurationTarget,
-  StatusBarAlignment,
   window,
-  commands,
   workspace,
 } from "vscode";
 
 // Manages webview panel
 export default class WarmUpPanel {
-  // Track the currently panel. Only allow a single panel to exist at a time.
+  // Track the currently panel. Only allow a single panel to exist at a time
   public static currentPanel: WarmUpPanel | undefined;
-
   public static readonly viewType = "warmUp";
   private readonly _panel: WebviewPanel;
   private readonly _extensionUri: Uri;
   private _disposables: Disposable[] = [];
 
+  // Constructor function
   private constructor(panel: WebviewPanel, extensionUri: Uri) {
     this._panel = panel;
     this._extensionUri = extensionUri;
@@ -54,6 +50,7 @@ export default class WarmUpPanel {
     );
   }
 
+  // Function to create or show existing webview panel
   public static createOrShow(extensionUri: Uri) {
     const column = window.activeTextEditor
       ? window.activeTextEditor.viewColumn
@@ -83,10 +80,12 @@ export default class WarmUpPanel {
     WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
   }
 
+  // Function to restore webview panel when VSCode is closed and opened back
   public static revive(panel: WebviewPanel, extensionUri: Uri) {
     WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
   }
 
+  // Function to send a message to the webview that contains all settings
   public sendAllConfigMessage(words: Record<string, string[]>) {
     this._panel.webview.postMessage({
       type: "allConfig",
@@ -98,6 +97,7 @@ export default class WarmUpPanel {
     });
   }
 
+  // Function to send a message to the webview that contains one setting
   public sendConfigMessage(config: string, value: any) {
     this._panel.webview.postMessage({
       type: "singleConfig",
@@ -106,6 +106,7 @@ export default class WarmUpPanel {
     });
   }
 
+  // Function to dispose of the webview panel
   public dispose() {
     WarmUpPanel.currentPanel = undefined;
 
@@ -120,12 +121,14 @@ export default class WarmUpPanel {
     }
   }
 
+  // Function to update the webview's html content and title
   private update() {
     const webview = this._panel.webview;
     this._panel.webview.html = this.getHtmlForWebview(webview);
     this._panel.title = "Warm Up";
   }
 
+  // Function that returns the html for the webview
   private getHtmlForWebview(webview: Webview) {
     // Uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(
@@ -136,11 +139,14 @@ export default class WarmUpPanel {
     const styleVSCodeUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "vscode.css")
     );
-    const stylesGameUri = webview.asWebviewUri(
+    const styleGameUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "game.css")
     );
-    const stylesThemeUri = webview.asWebviewUri(
+    const styleThemeUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "theme.css")
+    );
+    const stylePrismUri = webview.asWebviewUri(
+      Uri.joinPath(this._extensionUri, "media", "prism.css")
     );
 
     // Use a nonce to only allow specific scripts to be run
@@ -155,34 +161,37 @@ export default class WarmUpPanel {
 					Use a content security policy to only allow loading images from https or from our extension directory,
 					and only allow scripts that have a specific nonce.
 				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} https:; img-src ${webview.cspSource} https:; script-src ${webview.cspSource} https:;">
 
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+        <script
+          src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.0/purify.min.js"
+          integrity="sha512-FJzrdtFBVzaaehq9mzbhljqwJ7+jE0GyTa8UBxZdMsMUjflR25f5lJSGD0lmQPHnhQfnctG0B1TNQsObwyJUzA=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+        ></script>
+        <script
+          src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"
+          integrity="sha512-axJX7DJduStuBB8ePC8ryGzacZPr3rdLaIDZitiEgWWk2gsXxEFlm4UW0iNzj2h3wp5mOylgHAzBzM4nRSvTZA=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+        ></script>
 				<link href="${styleVSCodeUri}" rel="stylesheet">
-				<link href="${stylesGameUri}" rel="stylesheet">
-				<link href="${stylesThemeUri}" rel="stylesheet">
+				<link href="${styleGameUri}" rel="stylesheet">
+				<link href="${styleThemeUri}" rel="stylesheet">
+				<link href="${stylePrismUri}" rel="stylesheet">
 
 				<title>Warm Up</title>
 			</head> 
       <body>
         <div id="top">
-          <div id="logs"> </div>
+          <div id="test"></div>
+          <div id="logs"></div>
           <h2 id="header">
             Warm Up - Typing test
           </h2>
           <p>Hit "ctrl+shift+p" and enter "warmup" to see available commands</p>
-          <div id="mode-buttons">
-             <svg id="wordsModeButton" class="icon-button" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round"   stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <svg id="codeModeButton" class="icon-button" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <svg id="codeModeButton" class="icon-button" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-           </svg>
-          </div>
         </div>
 
         <div id="command-center">
@@ -222,31 +231,21 @@ export default class WarmUpPanel {
             </div>
           </div>
           <div id="coding-area" style="display: inline;">
-            <div id="code-display" style="display: block; height: auto;">
-              <span class="highlight">head </span>
-              <span>other </span>
-              <span>other </span>
-              <span>other </span>
-              <span>other </span>
-              <span>other </span>
-              <span>other </span>
-              <span>other </span>
-              <span>other </span>
+            <div class="code-display">
+              <div class="code">
+                <pre id="code-pre"></pre>
+                <span id="cursor" style="left: 0px; top: 0px" class="cursor"></span>
+              </div>
             </div>
             <div class="bar">
-              <input id="input-field" type="text" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" tabindex="1"/>
-              <button id="restart-button" tabindex="2">restart</button>
-            </div>            
+              <button id="restart-button" class="button codeButton" tabindex="2">restart</button>
+            </div>  
           </div>
         </div>
         <h1 id="lines-of-code-counter"></h1>
         <script nonce="${nonce}" src="${scriptUri}"></script>
       </body>
 			</html>`;
-  }
-
-  public panelExists() {
-    return WarmUpPanel.currentPanel !== undefined;
   }
 }
 

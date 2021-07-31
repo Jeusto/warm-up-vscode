@@ -3,43 +3,10 @@
 // It cannot access the main VS Code APIs directly
 
 (function () {
+  //====================================================
   // Global
-
-  // Words mode
-
-  // Code mode
-
-  // Get document element
-  const textDisplay = document.querySelector("#text-display");
-  const inputField = document.querySelector("#input-field");
-
-  // Initialize typing mode variables
-  let typingMode = "words (fixed amount)";
-  let wordCount;
-  let timeCount;
-
-  // Initialize dynamic variables
-  let allWords = [];
-  let randomWords = [];
-  let wordList = [];
-  let currentWord = 0;
-  let correctKeys = 0;
-  let startDate = 0;
-  let timer;
-  let timerActive = false;
-  let punctuation = false;
-
-  // Get all words and settings from the state if it exists
+  //====================================================
   const vscode = acquireVsCodeApi();
-  let previousState = vscode.getState();
-  if (previousState) {
-    allWords = previousState.allWords;
-    setLanguage(previousState.language);
-    setWordCount(previousState.count);
-    setTimeCount(previousState.count);
-    setTypingMode(previousState.mode);
-    setPunctuation(previousState.punctuation);
-  }
 
   // Handle messages sent from the extension to the webview
   window.addEventListener("message", (event) => {
@@ -95,7 +62,53 @@
     }
   });
 
-  // Generate new list of words
+  // Initialize typing mode variable
+  let typingMode = "words (fixed amount)";
+
+  // Get document elements
+  const textDisplay = document.querySelector("#text-display");
+  const inputField = document.querySelector("#input-field");
+
+  // Initialize dynamic variables
+  let wordCount;
+  let timeCount;
+  let allWords = [];
+  let randomWords = [];
+  let wordList = [];
+  let currentWord = 0;
+  let correctKeys = 0;
+  let startDate = 0;
+  let timer;
+  let timerActive = false;
+  let punctuation = false;
+
+  // Get all words and settings from the state if it exists
+  let previousState = vscode.getState();
+  if (previousState) {
+    allWords = previousState.allWords;
+    setLanguage(previousState.language);
+    setWordCount(previousState.count);
+    setTimeCount(previousState.count);
+    setTypingMode(previousState.mode);
+    setPunctuation(previousState.punctuation);
+  }
+
+  //====================================================
+  // Words mode
+  //====================================================
+  // Restart if restart button hit
+  document.querySelector("#restart-button").addEventListener("click", (e) => {
+    setText(e);
+  });
+
+  // Restart if escape key hit
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      setText(e);
+    }
+  });
+
+  // Function to generate a new list of words
   function setText(e) {
     e = e || window.event;
     var keepWordList = e && e.shiftKey;
@@ -156,7 +169,19 @@
     inputField.focus();
   }
 
-  // Add punctuation to a list of words
+  // Function to display a list of words
+  function showText() {
+    wordList.forEach((word) => {
+      let span = document.createElement("span");
+      span.innerHTML = word + " ";
+
+      textDisplay.appendChild(span);
+    });
+
+    textDisplay.firstChild.classList.add("highlight");
+  }
+
+  // Function to add punctuation to a list of words
   function addPunctuations() {
     if (wordList[0] !== undefined) {
       // Capitalize first word
@@ -194,19 +219,7 @@
     }
   }
 
-  // Display list of words
-  function showText() {
-    wordList.forEach((word) => {
-      let span = document.createElement("span");
-      span.innerHTML = word + " ";
-
-      textDisplay.appendChild(span);
-    });
-
-    textDisplay.firstChild.classList.add("highlight");
-  }
-
-  // Calculate and display result
+  // Function to calculate and display result
   function showResult() {
     let words, minute, acc;
     switch (typingMode) {
@@ -364,18 +377,6 @@
     }
   });
 
-  // Restart if restart button hit
-  document.querySelector("#restart-button").addEventListener("click", (e) => {
-    setText(e);
-  });
-
-  // Restart if escape key hit
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      setText(e);
-    }
-  });
-
   // Command center actions
   document.querySelector("#wc-15")?.addEventListener("click", () => {
     setWordCount(15);
@@ -412,7 +413,6 @@
   function setLanguage(_lang) {
     randomWords = allWords[_lang];
   }
-
   function setTypingMode(_mode) {
     const mode = _mode.toLowerCase();
     switch (mode) {
@@ -448,7 +448,6 @@
         console.error(`mode ${mode} is undefine`);
     }
   }
-
   function setPunctuation(_punc) {
     const punc = _punc.toLowerCase();
     if (punc === "true") {
@@ -459,7 +458,6 @@
       setText();
     }
   }
-
   function setWordCount(wc) {
     wordCount = wc;
     document
@@ -477,7 +475,6 @@
       count: wordCount,
     });
   }
-
   function setTimeCount(tc) {
     timeCount = tc;
     document.querySelectorAll("#time-count > span").forEach((e) => {
@@ -495,5 +492,340 @@
       command: "changeCount",
       count: timeCount,
     });
+  }
+
+  //====================================================
+  // Code mode
+  //====================================================
+  // Create item in local storage to store code snippet
+  localStorage.setItem("code", "");
+
+  // Set default code snippet
+  const defaultCodeSnippet = `c
+    [...new Set([...Object.keys(a), ...Object.keys(b)])].reduce(
+    (acc, key) => ({ ...acc, [key]: fn(key, a[key], b[key]) }),
+    {}
+  );`;
+
+  // Load code snippet from state or set to default one
+  const codeSnippet = localStorage.getItem("code") || defaultCodeSnippet;
+
+  // Add code snippet to the dom element
+  document.getElementById("code-pre").innerHTML = DOMPurify.sanitize(
+    highlightCode(codeSnippet)
+  );
+
+  // Initialize code snippet state variables
+  let codeState = {
+    firstChar: null,
+    lastChar: null,
+    currentChar: null,
+    currentCharNum: 0,
+    cursorLeftOffset: 0,
+    cursorTopOffset: 0,
+    linesLastCursorPositions: [],
+  };
+
+  // Save cursor in variable
+  const cursor = document.getElementById("cursor");
+
+  // Retrieve cursor dimensions from css
+  let cursorWidth =
+    parseInt(
+      getComputedStyle(cursor)
+        .getPropertyValue("--vscode-editor-font-size")
+        .replace("px", "")
+    ) * 0.5578;
+  let cursorHeight =
+    parseInt(
+      getComputedStyle(cursor)
+        .getPropertyValue("--vscode-editor-font-size")
+        .replace("px", "")
+    ) * 1.25;
+
+  // Update state with the correct characters
+  updateStateChars();
+
+  // Add event listeners for key presses
+  document.addEventListener("keydown", (e) => handleKeyDown(e));
+  document.addEventListener("keypress", (e) => handleKeyPress(e));
+
+  // Function to update characters in the state
+  function updateStateChars() {
+    const toPassSymbols = document.getElementsByClassName("topass");
+    codeState = {
+      ...codeState,
+      firstChar: toPassSymbols[0],
+      currentChar: toPassSymbols[0],
+      lastChar: toPassSymbols[toPassSymbols.length - 1],
+    };
+  }
+
+  // Function that code snippet highlighted and ready for rendering
+  function highlightCode(code) {
+    const highlightedCode = Prism.highlight(code, Prism.languages.javascript);
+    const regexpTag = /(<\/?span.*?>)/;
+    const tagsAndTextArr = highlightedCode.split(regexpTag);
+    const regexpSpecialChar = /&[a-z]*;/;
+    let codeToRender = "";
+
+    // Wrap code characters with <span class='topass'>
+    for (let i = 0; i < tagsAndTextArr.length; i++) {
+      // If text element, wrap each symbol with span
+      if (tagsAndTextArr[i] !== "" && !regexpTag.test(tagsAndTextArr[i])) {
+        let newHtml = "";
+        if (regexpSpecialChar.test(tagsAndTextArr[i])) {
+          // Special characters
+          const specialCharsArr = tagsAndTextArr[i].match(/&[a-z]*;/g);
+          // If we have one special character without other symbols
+          if (
+            specialCharsArr.length === 1 &&
+            specialCharsArr[0] === tagsAndTextArr[i]
+          ) {
+            newHtml += `<span class="char topass">${tagsAndTextArr[i]}</span>`;
+            // If we have a special character with other symbols
+          } else {
+            const otherCharsArr = tagsAndTextArr[i].split(regexpSpecialChar);
+            for (let j = 0; j < otherCharsArr.length; j++) {
+              if (otherCharsArr[j] === "" && j < specialCharsArr.length) {
+                newHtml += `<span class="char topass">${specialCharsArr[0]}</span>`;
+                continue;
+              }
+              for (let k = 0; k < otherCharsArr[j].length; k++) {
+                newHtml += `<span class="char topass">${otherCharsArr[j][k]}</span>`;
+              }
+              if (j !== otherCharsArr.length - 1) {
+                newHtml += `<span class="char topass">${specialCharsArr[0]}</span>`;
+              }
+            }
+          }
+        } else {
+          // Simple words and symbols
+          for (let j = 0; j < tagsAndTextArr[i].length; j++) {
+            newHtml += `<span class="char topass">${tagsAndTextArr[i][j]}</span>`;
+          }
+        }
+        tagsAndTextArr[i] = newHtml;
+      }
+      codeToRender += tagsAndTextArr[i];
+    }
+
+    return codeToRender;
+  }
+
+  // Function that returns the next character to the cursor
+  function getNextChar() {
+    return document.getElementsByClassName("char")[
+      codeState.currentCharNum + 1
+    ];
+  }
+
+  // Function that returns the previous character to the cursor
+  function getPrevChar() {
+    return document.getElementsByClassName("char")[
+      codeState.currentCharNum - 1
+    ];
+  }
+
+  // Function that handles "tab" and "backspace" key presses
+  function handleKeyDown(e) {
+    // Tab: move cursor further
+    if (e.which === 9) {
+      e.preventDefault();
+      const currentChar = codeState.currentChar;
+      const currentCharCode = currentChar.innerText.charCodeAt(0);
+
+      // If the current symbol is a tab character
+      if (currentCharCode === 9) {
+        handleKeyPress(e);
+      }
+
+      // If the current symbol is a tab consisting of spaces
+      if (currentCharCode === 32) {
+        // Count all next spaces
+        let counter = 0;
+        let summToAdd = 0;
+        let currentEl = currentChar;
+
+        // Calculate the distance to move the cursor and change classes of passed characters
+        while (currentEl.innerText.charCodeAt(0) === 32) {
+          summToAdd += cursorWidth;
+          currentEl.classList.remove("topass");
+          currentEl.classList.add("passed");
+          currentEl = currentEl.nextElementSibling;
+          counter++;
+        }
+
+        // Change state depending on how much spaces we have passed
+        if (counter === 1) {
+          // Single space just for space
+          flashCursor();
+        } else {
+          // Move cursor through spaces
+          codeState = {
+            ...codeState,
+            currentCharNum: codeState.currentCharNum + (counter - 1),
+          };
+          codeState = {
+            ...codeState,
+            cursorLeftOffset: codeState.cursorLeftOffset + summToAdd,
+            currentChar: getNextChar(),
+            currentCharNum: codeState.currentCharNum + 1,
+          };
+          updateCursorPosition(
+            codeState.cursorLeftOffset,
+            codeState.cursorTopOffset
+          );
+        }
+      }
+    }
+
+    // Backspace: move cursor back
+    if (e.key === "Backspace") {
+      // If first element is reached, ignore
+      if (codeState.currentChar === codeState.firstChar) {
+        flashCursor();
+        return;
+      }
+
+      // Else find out where we are and change state
+      const currentChar = getPrevChar();
+      const currentCharCode = currentChar.innerText.charCodeAt(0);
+
+      codeState = { ...codeState, currentChar: currentChar };
+      currentChar.classList.remove("notpassed");
+      currentChar.classList.add("topass");
+
+      // If we are at the beginning of the line, go to the previous line
+      if (currentCharCode === 10) {
+        const linesLastCursorPositions = codeState.linesLastCursorPositions;
+
+        codeState = {
+          ...codeState,
+          cursorLeftOffset: linesLastCursorPositions.pop(),
+          cursorTopOffset: codeState.cursorTopOffset - cursorHeight,
+          linesLastCursorPositions,
+          currentCharNum: codeState.currentCharNum - 1,
+        };
+        updateCursorPosition(
+          codeState.cursorLeftOffset,
+          codeState.cursorTopOffset
+        );
+
+        return;
+      }
+
+      // If it's the same line, go one back
+      codeState = {
+        ...codeState,
+        cursorLeftOffset: codeState.cursorLeftOffset - cursorWidth,
+        currentCharNum: codeState.currentCharNum - 1,
+      };
+      updateCursorPosition(
+        codeState.cursorLeftOffset,
+        codeState.cursorTopOffset
+      );
+    }
+  }
+
+  // Function that handles  all the other key presses
+  function handleKeyPress(e) {
+    // Other keys: change state depending on the key pressed
+    e.preventDefault();
+
+    const currentChar = codeState.currentChar;
+    const typedSymbolCode = e.which;
+    const currentCharCode = currentChar.innerText.charCodeAt(0);
+
+    // If the current symbol is a new line, do nothing if 'enter' not hit
+    if (currentCharCode === 10 && typedSymbolCode !== 13) {
+      flashCursor();
+      return;
+    }
+
+    // If the current symbol is not new line, do nothing if 'enter' pressed
+    if (currentCharCode !== 10 && typedSymbolCode === 13) {
+      flashCursor();
+      return;
+    }
+
+    // Change classes of passed characters
+    currentChar.classList.remove("topass");
+    if (typedSymbolCode === currentCharCode) {
+      currentChar.classList.add("passed");
+    } else {
+      currentChar.classList.add("notpassed");
+    }
+
+    // If last symbol reached, hide cursor and show stats
+    if (codeState.currentChar === codeState.lastChar) {
+      cursor.classList.add("hide");
+      document.getElementsByClassName("stats")[0].classList.remove("hide");
+      window.scrollTo(0, document.body.scrollHeight);
+
+      return;
+    }
+
+    // Else, get next symbol and set it as current
+    const next = getNextChar();
+    codeState = { ...codeState, currentChar: next };
+
+    // Moving the cursor to the next position
+
+    // If it's new line
+    if (currentCharCode === 10 && typedSymbolCode === 13) {
+      const linesLastCursorPositions = codeState.linesLastCursorPositions;
+      linesLastCursorPositions.push(codeState.cursorLeftOffset);
+      codeState = {
+        ...codeState,
+        cursorLeftOffset: 0,
+        cursorTopOffset: codeState.cursorTopOffset + cursorHeight,
+        linesLastCursorPositions,
+        currentCharNum: codeState.currentCharNum + 1,
+      };
+      updateCursorPosition(
+        codeState.cursorLeftOffset,
+        codeState.cursorTopOffset
+      );
+
+      return;
+    }
+
+    // If tab symbol is reached
+    if (currentCharCode === 9) {
+      codeState = {
+        ...codeState,
+        cursorLeftOffset: codeState.cursorLeftOffset + cursorWidth,
+        currentCharNum: codeState.currentCharNum + 1,
+      };
+      updateCursorPosition(
+        codeState.cursorLeftOffset,
+        codeState.cursorTopOffset
+      );
+
+      return;
+    }
+
+    // If it's the same line
+    codeState = {
+      ...codeState,
+      cursorLeftOffset: codeState.cursorLeftOffset + cursorWidth,
+      currentCharNum: codeState.currentCharNum + 1,
+    };
+    updateCursorPosition(codeState.cursorLeftOffset, codeState.cursorTopOffset);
+  }
+
+  // Function to update cursor position in the dom
+  function updateCursorPosition(left, top) {
+    cursor.style.left = `${left}px `;
+    cursor.style.top = `${top}px`;
+  }
+
+  // Function to visually flash the cursor
+  function flashCursor() {
+    cursor.style.background = "#e05561";
+    setTimeout(() => {
+      cursor.style.background = "#8cc265";
+    }, 100);
   }
 })();

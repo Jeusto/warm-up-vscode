@@ -5,7 +5,7 @@ exports.activate = void 0;
 // It can access the main VS Code APIs directly
 const vscode_1 = require("vscode");
 const webviewPanel_1 = require("./webviewPanel/webviewPanel");
-// Init the extension
+// Init the status bar icon
 let myStatusBarItem;
 // Function called after activation event
 function activate(context) {
