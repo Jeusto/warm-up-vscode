@@ -501,11 +501,43 @@
   localStorage.setItem("code", "");
 
   // Set default code snippet
-  const defaultCodeSnippet = `c
-    [...new Set([...Object.keys(a), ...Object.keys(b)])].reduce(
-    (acc, key) => ({ ...acc, [key]: fn(key, a[key], b[key]) }),
-    {}
-  );`;
+  const defaultCodeSnippet = `const btn = document.getElementById('btn')
+let count = 0
+function render() {
+  btn.innerText = \`Count: \${count}\`
+}
+btn.addEventListener('click', () => {
+  // Count from 1 to 10.
+  if (count < 10) {
+    count += 1
+    render()
+  }
+});
+
+html {
+  font-size: 16px;
+  font-family: 'Open Sans', sans-serif;
+}
+body {
+  margin: 0;
+}
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+<html lang="en">
+<head>
+  <title>HTML Template</title>
+</head>
+<body>
+  <main>
+    <!-- Page contents -->
+    <button id="btn" />
+  </main>
+</body>
+</html>`;
 
   // Load code snippet from state or set to default one
   const codeSnippet = localStorage.getItem("code") || defaultCodeSnippet;
@@ -819,6 +851,11 @@
   function updateCursorPosition(left, top) {
     cursor.style.left = `${left}px `;
     cursor.style.top = `${top}px`;
+    cursor.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "center",
+    });
   }
 
   // Function to visually flash the cursor
