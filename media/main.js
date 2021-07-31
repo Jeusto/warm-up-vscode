@@ -17,7 +17,9 @@
       // Put words list and settings into a state
       vscode.setState({
         allWords: message.words,
+        allCodes: message.codes,
         language: message.language,
+        codeLanguage: message.codeLanguage,
         count: message.count,
         mode: message.mode,
         punctuation: message.punctuation,
@@ -26,7 +28,9 @@
 
       // Change words list and settings
       allWords = message.words;
+      allCodes = message.codes;
       setLanguage(message.language);
+      setCodeLanguage(message.codeLanguage);
       setWordCount(message.count);
       setTimeCount(message.count);
       setTypingMode(message.mode);
@@ -38,6 +42,12 @@
           setLanguage(message.value);
           setText();
           vscode.setState({ ...previousState, language: message.value });
+          previousState = vscode.getState();
+          break;
+        case "switchCodeLanguage":
+          setCodeLanguage(message.value);
+          setCodeText();
+          vscode.setState({ ...previousState, codeLanguage: message.value });
           previousState = vscode.getState();
           break;
         case "switchTypingMode":
@@ -62,51 +72,120 @@
     }
   });
 
-  // Initialize typing mode variable
-  let typingMode = "words (fixed amount)";
-
   // Get document elements
   const textDisplay = document.querySelector("#text-display");
   const inputField = document.querySelector("#input-field");
 
+  const codeDisplay = document.querySelector("#code-display");
+  const cursor = document.getElementById("cursor");
+  const charDimensions = document.getElementById("charDimensions");
+
   // Initialize dynamic variables
-  let wordCount;
-  let timeCount;
+  let typingMode = "words (fixed amount)";
+
   let allWords = [];
-  let randomWords = [];
-  let wordList = [];
+  let selectedLanguageWords = [];
+  let currentWordsList = [];
   let currentWord = 0;
   let correctKeys = 0;
-  let startDate = 0;
-  let timer;
-  let timerActive = false;
   let punctuation = false;
+  let wordCount;
+  let timeCount;
+  let startDate = 0;
+  let timerActive = false;
+  let timer;
+
+  let allCodes = [];
+  let selectedLanguageCodes = [];
+  let selectedLanguageName = "";
+  let currentCode = "";
+  let codeStartDate = 0;
+  let codeTimerActive = false;
+  let codeTimer;
+  let codeState = {
+    firstChar: null,
+    lastChar: null,
+    currentChar: null,
+    currentCharNum: 0,
+    cursorLeftOffset: 0,
+    cursorTopOffset: 0,
+    linesLastCursorPositions: [],
+  };
 
   // Get all words and settings from the state if it exists
   let previousState = vscode.getState();
   if (previousState) {
     allWords = previousState.allWords;
+    allCodes = previousState.allCodes;
     setLanguage(previousState.language);
+    setCodeLanguage(previousState.codeLanguage);
     setWordCount(previousState.count);
     setTimeCount(previousState.count);
     setTypingMode(previousState.mode);
     setPunctuation(previousState.punctuation);
   }
 
-  //====================================================
-  // Words mode
-  //====================================================
   // Restart if restart button hit
   document.querySelector("#restart-button").addEventListener("click", (e) => {
     setText(e);
+  });
+  document.querySelector(".codeButton").addEventListener("click", (e) => {
+    setCodeText(e);
   });
 
   // Restart if escape key hit
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      setText(e);
+      if (typingMode === "code snippets") {
+        setCodeText(e);
+      } else {
+        setText(e);
+      }
     }
   });
+
+  // Function to change typing mode
+  function setTypingMode(_mode) {
+    const mode = _mode.toLowerCase();
+    switch (mode) {
+      case "words (fixed amount)":
+        typingMode = mode;
+        document.querySelector("#coding-area").style.display = "none";
+        document.querySelector("#time-count").style.display = "none";
+        document.querySelector("#language-selected").style.display = "none";
+        document.querySelector("#typing-area").style.display = "inline";
+        document.querySelector("#word-count").style.display = "inline";
+        setText();
+        break;
+
+      case "words (against the clock)":
+        typingMode = mode;
+        document.querySelector("#coding-area").style.display = "none";
+        document.querySelector("#word-count").style.display = "none";
+        document.querySelector("#language-selected").style.display = "none";
+        document.querySelector("#typing-area").style.display = "inline";
+        document.querySelector("#time-count").style.display = "inline";
+        setText();
+        break;
+
+      case "code snippets":
+        typingMode = mode;
+        document.querySelector("#typing-area").style.display = "none";
+        document.querySelector("#word-count").style.display = "none";
+        document.querySelector("#time-count").style.display = "none";
+        document.querySelector("#coding-area").style.display = "inline";
+        document.querySelector("#language-selected").style.display = "inline";
+        setCodeText();
+        break;
+
+      default:
+        console.error(`mode ${mode} is undefine`);
+    }
+  }
+
+  //====================================================
+  // Words mode
+  //====================================================
 
   // Function to generate a new list of words
   function setText(e) {
@@ -115,7 +194,7 @@
 
     // Reset
     if (!keepWordList) {
-      wordList = [];
+      currentWordsList = [];
     }
     currentWord = 0;
     correctKeys = 0;
@@ -131,16 +210,18 @@
 
         textDisplay.innerHTML = "";
         if (!keepWordList) {
-          wordList = [];
+          currentWordsList = [];
 
-          while (wordList.length < wordCount) {
+          while (currentWordsList.length < wordCount) {
             const randomWord =
-              randomWords[Math.floor(Math.random() * randomWords.length)];
+              selectedLanguageWords[
+                Math.floor(Math.random() * selectedLanguageWords.length)
+              ];
             if (
-              wordList[wordList.length - 1] !== randomWord ||
-              wordList[wordList.length - 1] === undefined
+              currentWordsList[currentWordsList.length - 1] !== randomWord ||
+              currentWordsList[currentWordsList.length - 1] === undefined
             ) {
-              wordList.push(randomWord);
+              currentWordsList.push(randomWord);
             }
           }
         }
@@ -153,12 +234,12 @@
 
         textDisplay.innerHTML = "";
         if (!keepWordList) {
-          wordList = [];
+          currentWordsList = [];
 
           for (i = 0; i < 500; i++) {
-            let n = Math.floor(Math.random() * randomWords.length);
+            let n = Math.floor(Math.random() * selectedLanguageWords.length);
 
-            wordList.push(randomWords[n]);
+            currentWordsList.push(selectedLanguageWords[n]);
           }
         }
     }
@@ -171,7 +252,7 @@
 
   // Function to display a list of words
   function showText() {
-    wordList.forEach((word) => {
+    currentWordsList.forEach((word) => {
       let span = document.createElement("span");
       span.innerHTML = word + " ";
 
@@ -179,44 +260,6 @@
     });
 
     textDisplay.firstChild.classList.add("highlight");
-  }
-
-  // Function to add punctuation to a list of words
-  function addPunctuations() {
-    if (wordList[0] !== undefined) {
-      // Capitalize first word
-      wordList[0] = wordList[0][0].toUpperCase() + wordList[0].slice(1);
-
-      // Add comma, fullstop, question mark, exclamation mark, semicolon. Capitalize the next word
-      for (i = 0; i < wordList.length; i++) {
-        const ran = Math.random();
-
-        if (i < wordList.length - 1) {
-          if (ran < 0.03) {
-            wordList[i] += ",";
-          } else if (ran < 0.05) {
-            wordList[i] += ".";
-
-            wordList[i + 1] =
-              wordList[i + 1][0].toUpperCase() + wordList[i + 1].slice(1);
-          } else if (ran < 0.06) {
-            wordList[i] += "?";
-
-            wordList[i + 1] =
-              wordList[i + 1][0].toUpperCase() + wordList[i + 1].slice(1);
-          } else if (ran < 0.07) {
-            wordList[i] += "!";
-
-            wordList[i + 1] =
-              wordList[i + 1][0].toUpperCase() + wordList[i + 1].slice(1);
-          } else if (ran < 0.08) {
-            wordList[i] += ";";
-          }
-        }
-      }
-
-      wordList[wordList.length - 1] += ".";
-    }
   }
 
   // Function to calculate and display result
@@ -228,7 +271,7 @@
         minute = (Date.now() - startDate) / 1000 / 60;
         let totalKeys = -1;
 
-        wordList.forEach((e) => (totalKeys += e.length + 1));
+        currentWordsList.forEach((e) => (totalKeys += e.length + 1));
         acc = Math.floor((correctKeys / totalKeys) * 100);
         break;
 
@@ -239,7 +282,7 @@
         let sumKeys = -1;
 
         for (i = 0; i < currentWord; i++) {
-          sumKeys += wordList[i].length + 1;
+          sumKeys += currentWordsList[i].length + 1;
         }
         acc = acc = Math.min(Math.floor((correctKeys / sumKeys) * 100), 100);
     }
@@ -256,7 +299,7 @@
     // Add wrong class to input field
     switch (typingMode) {
       case "words (fixed amount)":
-        if (currentWord < wordList.length) inputFieldClass();
+        if (currentWord < currentWordsList.length) inputFieldClass();
       case "words (against the clock)":
         if (timerActive) inputFieldClass();
     }
@@ -270,7 +313,7 @@
       ) {
         let inputWordSlice = inputField.value + e.key;
 
-        let currentWordSlice = wordList[currentWord].slice(
+        let currentWordSlice = currentWordsList[currentWord].slice(
           0,
           inputWordSlice.length
         );
@@ -282,7 +325,7 @@
           ? ""
           : inputField.value.slice(0, inputField.value.length - 1);
 
-        let currentWordSlice = wordList[currentWord].slice(
+        let currentWordSlice = currentWordsList[currentWord].slice(
           0,
           inputWordSlice.length
         );
@@ -346,17 +389,17 @@
         }
 
         // If it is not the last word increment currentWord,
-        if (currentWord < wordList.length - 1) {
-          if (inputField.value === wordList[currentWord]) {
+        if (currentWord < currentWordsList.length - 1) {
+          if (inputField.value === currentWordsList[currentWord]) {
             textDisplay.childNodes[currentWord].classList.add("correct");
 
-            correctKeys += wordList[currentWord].length + 1;
+            correctKeys += currentWordsList[currentWord].length + 1;
           } else {
             textDisplay.childNodes[currentWord].classList.add("wrong");
           }
 
           textDisplay.childNodes[currentWord + 1].classList.add("highlight");
-        } else if (currentWord === wordList.length - 1) {
+        } else if (currentWord === currentWordsList.length - 1) {
           textDisplay.childNodes[currentWord].classList.add("wrong");
           showResult();
         }
@@ -366,11 +409,11 @@
       }
 
       // Else if it is the last word and input word is correct show the result
-    } else if (currentWord === wordList.length - 1) {
-      if (inputField.value + e.key === wordList[currentWord]) {
+    } else if (currentWord === currentWordsList.length - 1) {
+      if (inputField.value + e.key === currentWordsList[currentWord]) {
         textDisplay.childNodes[currentWord].classList.add("correct");
 
-        correctKeys += wordList[currentWord].length;
+        correctKeys += currentWordsList[currentWord].length;
         currentWord++;
         showResult();
       }
@@ -409,45 +452,54 @@
     setTimeCount(240);
   });
 
-  // Functions to change settings
-  function setLanguage(_lang) {
-    randomWords = allWords[_lang];
-  }
-  function setTypingMode(_mode) {
-    const mode = _mode.toLowerCase();
-    switch (mode) {
-      case "words (fixed amount)":
-        typingMode = mode;
-        document.querySelector("#coding-area").style.display = "none";
-        document.querySelector("#time-count").style.display = "none";
-        document.querySelector("#language-selected").style.display = "none";
-        document.querySelector("#typing-area").style.display = "inline";
-        document.querySelector("#word-count").style.display = "inline";
-        setText();
-        break;
+  // Function to add punctuation to a list of words
+  function addPunctuations() {
+    if (currentWordsList[0] !== undefined) {
+      // Capitalize first word
+      currentWordsList[0] =
+        currentWordsList[0][0].toUpperCase() + currentWordsList[0].slice(1);
 
-      case "words (against the clock)":
-        typingMode = mode;
-        document.querySelector("#coding-area").style.display = "none";
-        document.querySelector("#word-count").style.display = "none";
-        document.querySelector("#language-selected").style.display = "none";
-        document.querySelector("#typing-area").style.display = "inline";
-        document.querySelector("#time-count").style.display = "inline";
-        setText();
-        break;
+      // Add comma, fullstop, question mark, exclamation mark, semicolon. Capitalize the next word
+      for (i = 0; i < currentWordsList.length; i++) {
+        const ran = Math.random();
 
-      case "code snippets":
-        typingMode = mode;
-        document.querySelector("#typing-area").style.display = "none";
-        document.querySelector("#word-count").style.display = "none";
-        document.querySelector("#time-count").style.display = "none";
-        document.querySelector("#coding-area").style.display = "inline";
-        document.querySelector("#language-selected").style.display = "inline";
+        if (i < currentWordsList.length - 1) {
+          if (ran < 0.03) {
+            currentWordsList[i] += ",";
+          } else if (ran < 0.05) {
+            currentWordsList[i] += ".";
 
-      default:
-        console.error(`mode ${mode} is undefine`);
+            currentWordsList[i + 1] =
+              currentWordsList[i + 1][0].toUpperCase() +
+              currentWordsList[i + 1].slice(1);
+          } else if (ran < 0.06) {
+            currentWordsList[i] += "?";
+
+            currentWordsList[i + 1] =
+              currentWordsList[i + 1][0].toUpperCase() +
+              currentWordsList[i + 1].slice(1);
+          } else if (ran < 0.07) {
+            currentWordsList[i] += "!";
+
+            currentWordsList[i + 1] =
+              currentWordsList[i + 1][0].toUpperCase() +
+              currentWordsList[i + 1].slice(1);
+          } else if (ran < 0.08) {
+            currentWordsList[i] += ";";
+          }
+        }
+      }
+
+      currentWordsList[currentWordsList.length - 1] += ".";
     }
   }
+
+  // Functions to change language setting
+  function setLanguage(_lang) {
+    selectedLanguageWords = allWords[_lang];
+  }
+
+  // Function to change punctuation setting
   function setPunctuation(_punc) {
     const punc = _punc.toLowerCase();
     if (punc === "true") {
@@ -458,6 +510,8 @@
       setText();
     }
   }
+
+  // Function to change word count setting
   function setWordCount(wc) {
     wordCount = wc;
     document
@@ -475,6 +529,8 @@
       count: wordCount,
     });
   }
+
+  // Function to change time count setting
   function setTimeCount(tc) {
     timeCount = tc;
     document.querySelectorAll("#time-count > span").forEach((e) => {
@@ -497,90 +553,83 @@
   //====================================================
   // Code mode
   //====================================================
-  // Create item in local storage to store code snippet
-  localStorage.setItem("code", "");
 
-  // Set default code snippet
-  const defaultCodeSnippet = `const btn = document.getElementById('btn')
-let count = 0
-function render() {
-  btn.innerText = \`Count: \${count}\`
-}
-btn.addEventListener('click', () => {
-  // Count from 1 to 10.
-  if (count < 10) {
-    count += 1
-    render()
+  function setCodeText(e) {
+    e = e || window.event;
+    var keepWordList = e && e.shiftKey;
+
+    // Change code snippet if shift key is not hit
+    if (!keepWordList) {
+      currentCode =
+        selectedLanguageCodes[
+          Math.floor(Math.random() * selectedLanguageCodes.length)
+        ];
+    }
+
+    // Reset progress state
+    codeState = {
+      firstChar: null,
+      lastChar: null,
+      currentChar: null,
+      currentCharNum: 0,
+      cursorLeftOffset: 0,
+      cursorTopOffset: 0,
+      linesLastCursorPositions: [],
+    };
+    // Reset cursor position
+    updateCursorPosition(0, 0);
+
+    // Show code snippet and focus into it
+    showCodeText();
+    document.getElementById("coding-area").focus();
+    return;
   }
-});
 
-html {
-  font-size: 16px;
-  font-family: 'Open Sans', sans-serif;
-}
-body {
-  margin: 0;
-}
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
-}
+  function showCodeText() {
+    document.getElementById("code-pre").innerHTML = DOMPurify.sanitize(
+      highlightCode(currentCode)
+    );
 
-<html lang="en">
-<head>
-  <title>HTML Template</title>
-</head>
-<body>
-  <main>
-    <!-- Page contents -->
-    <button id="btn" />
-  </main>
-</body>
-</html>`;
+    // Update state with the correct characters
+    updateStateChars();
+    return;
+  }
 
-  // Load code snippet from state or set to default one
-  const codeSnippet = localStorage.getItem("code") || defaultCodeSnippet;
-
-  // Add code snippet to the dom element
-  document.getElementById("code-pre").innerHTML = DOMPurify.sanitize(
-    highlightCode(codeSnippet)
-  );
-
-  // Initialize code snippet state variables
-  let codeState = {
-    firstChar: null,
-    lastChar: null,
-    currentChar: null,
-    currentCharNum: 0,
-    cursorLeftOffset: 0,
-    cursorTopOffset: 0,
-    linesLastCursorPositions: [],
-  };
-
-  // Save cursor in variable
-  const cursor = document.getElementById("cursor");
+  function showCodeResults() {
+    return;
+  }
 
   // Retrieve cursor dimensions from css
   let cursorWidth =
     parseInt(
-      getComputedStyle(cursor)
+      getComputedStyle(charDimensions)
         .getPropertyValue("--vscode-editor-font-size")
         .replace("px", "")
     ) * 0.5578;
   let cursorHeight =
     parseInt(
-      getComputedStyle(cursor)
+      getComputedStyle(charDimensions)
         .getPropertyValue("--vscode-editor-font-size")
         .replace("px", "")
     ) * 1.25;
 
-  // Update state with the correct characters
-  updateStateChars();
-
   // Add event listeners for key presses
-  document.addEventListener("keydown", (e) => handleKeyDown(e));
-  document.addEventListener("keypress", (e) => handleKeyPress(e));
+  document
+    .getElementById("coding-area")
+    .addEventListener("keydown", (e) => handleKeyDown(e));
+  document
+    .getElementById("coding-area")
+    .addEventListener("keypress", (e) => handleKeyPress(e));
+
+  // Function to set code language
+  function setCodeLanguage(_lang) {
+    selectedLanguageName = _lang;
+    document.querySelector("#language-selected").innerHTML =
+      selectedLanguageName.charAt(0).toUpperCase() +
+      selectedLanguageName.slice(1);
+    selectedLanguageCodes = allCodes[_lang];
+    return;
+  }
 
   // Function to update characters in the state
   function updateStateChars() {
@@ -593,7 +642,7 @@ body {
     };
   }
 
-  // Function that code snippet highlighted and ready for rendering
+  // Function that returns code snippet highlighted and ready for rendering
   function highlightCode(code) {
     const highlightedCode = Prism.highlight(code, Prism.languages.javascript);
     const regexpTag = /(<\/?span.*?>)/;
@@ -862,7 +911,7 @@ body {
   function flashCursor() {
     cursor.style.background = "#e05561";
     setTimeout(() => {
-      cursor.style.background = "#8cc265";
+      cursor.style.background = "#5dbeff";
     }, 100);
   }
 })();

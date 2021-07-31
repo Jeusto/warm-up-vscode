@@ -15,6 +15,7 @@ function activate(context) {
     const rawdata = fs.readFileSync(`${context.extensionPath}/media/words.json`, "utf8");
     const data = JSON.parse(rawdata);
     const words = data.words;
+    const codes = data.codes;
     // Add status bar icon
     myStatusBarItem = vscode_1.window.createStatusBarItem(vscode_1.StatusBarAlignment.Left, 1);
     myStatusBarItem.command = "warmUp.start";
@@ -29,7 +30,7 @@ function activate(context) {
         webviewPanel_1.default.createOrShow(context.extensionUri);
         // Send all user settings with message
         if (webviewPanel_1.default.currentPanel) {
-            webviewPanel_1.default.currentPanel.sendAllConfigMessage(words);
+            webviewPanel_1.default.currentPanel.sendAllConfigMessage(words, codes);
         }
     }));
     // Register switchLanguage command
@@ -58,6 +59,20 @@ function activate(context) {
         // Send message to webview if it exists
         if (webviewPanel_1.default.currentPanel) {
             webviewPanel_1.default.currentPanel.sendConfigMessage("switchLanguage", userChoice);
+        }
+    }));
+    // Register switchCodeLanguage command
+    context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.switchCodeLanguage", async function showQuickPick() {
+        const userChoice = await vscode_1.window.showQuickPick(["javascript", "python"], {
+            placeHolder: "Choose a specific programming language to practice with.",
+        });
+        // Update the configuration value with user choice
+        await vscode_1.workspace
+            .getConfiguration()
+            .update("warmUp.switchCodeLanguage", userChoice, vscode_1.ConfigurationTarget.Global);
+        // Send message to webview if it exists
+        if (webviewPanel_1.default.currentPanel) {
+            webviewPanel_1.default.currentPanel.sendConfigMessage("switchCodeLanguage", userChoice);
         }
     }));
     // Register switchTypingMode command

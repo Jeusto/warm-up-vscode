@@ -1,6 +1,6 @@
 {
   "languages": {
-    "human": [
+    "words": [
       "english",
       "italian",
       "german",
@@ -16,7 +16,7 @@
       "finnish",
       "englishTop1000"
     ],
-    "programming": [
+    "code": [
       "javascript",
       "html",
       "css",
@@ -4985,6 +4985,16 @@
       "anger",
       "claim",
       "continent"
+    ]
+  },
+  "codes": {
+    "javascript": [
+      "first js code",
+      "second js code"
+    ],
+    "python": [
+      "first py code",
+      "second py code"
     ]
   }
 }

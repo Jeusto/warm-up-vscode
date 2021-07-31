@@ -86,11 +86,18 @@ export default class WarmUpPanel {
   }
 
   // Function to send a message to the webview that contains all settings
-  public sendAllConfigMessage(words: Record<string, string[]>) {
+  public sendAllConfigMessage(
+    words: Record<string, string[]>,
+    codes: Record<string, string[]>
+  ) {
     this._panel.webview.postMessage({
       type: "allConfig",
       words: words,
+      codes: codes,
       language: workspace.getConfiguration().get("warmUp.switchLanguage"),
+      codeLanguage: workspace
+        .getConfiguration()
+        .get("warmUp.switchCodeLanguage"),
       mode: workspace.getConfiguration().get("warmUp.switchTypingMode"),
       count: workspace.getConfiguration().get("warmUp.changeCount"),
       punctuation: workspace.getConfiguration().get("warmUp.togglePunctuation"),
@@ -186,7 +193,7 @@ export default class WarmUpPanel {
 			</head> 
       <body>
         <div id="top">
-          <div id="test"></div>
+          <div id="charDimensions"></div>
           <div id="logs"></div>
           <h2 id="header">
             Warm Up - Typing test
@@ -219,7 +226,7 @@ export default class WarmUpPanel {
                 <text> / </text>
                 <span id="tc-240">240</span>
               </span>
-              <span id="language-selected">Javascript</span>
+              <span id="language-selected">Language</span>
             </div>
             <div id="right-wing">WPM: XX / ACC: XX</div>
           </div>
@@ -230,7 +237,7 @@ export default class WarmUpPanel {
               <button id="restart-button" tabindex="2">restart</button>
             </div>
           </div>
-          <div id="coding-area" style="display: inline;">
+          <div id="coding-area" tabindex="-1" style="display: inline;">
             <div class="code-display">
               <div class="code">
                 <pre id="code-pre"></pre>

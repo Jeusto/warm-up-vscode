@@ -28,6 +28,7 @@ export function activate(context: ExtensionContext) {
   );
   const data = JSON.parse(rawdata);
   const words = data.words;
+  const codes = data.codes;
 
   // Add status bar icon
   myStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 1);
@@ -46,7 +47,7 @@ export function activate(context: ExtensionContext) {
       WarmUpPanel.createOrShow(context.extensionUri);
       // Send all user settings with message
       if (WarmUpPanel.currentPanel) {
-        WarmUpPanel.currentPanel.sendAllConfigMessage(words);
+        WarmUpPanel.currentPanel.sendAllConfigMessage(words, codes);
       }
     })
   );
@@ -90,6 +91,39 @@ export function activate(context: ExtensionContext) {
         if (WarmUpPanel.currentPanel) {
           WarmUpPanel.currentPanel.sendConfigMessage(
             "switchLanguage",
+            userChoice
+          );
+        }
+      }
+    )
+  );
+
+  // Register switchCodeLanguage command
+  context.subscriptions.push(
+    commands.registerCommand(
+      "warmUp.switchCodeLanguage",
+      async function showQuickPick() {
+        const userChoice = await window.showQuickPick(
+          ["javascript", "python"],
+          {
+            placeHolder:
+              "Choose a specific programming language to practice with.",
+          }
+        );
+
+        // Update the configuration value with user choice
+        await workspace
+          .getConfiguration()
+          .update(
+            "warmUp.switchCodeLanguage",
+            userChoice,
+            ConfigurationTarget.Global
+          );
+
+        // Send message to webview if it exists
+        if (WarmUpPanel.currentPanel) {
+          WarmUpPanel.currentPanel.sendConfigMessage(
+            "switchCodeLanguage",
             userChoice
           );
         }
