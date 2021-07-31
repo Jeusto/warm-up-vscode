@@ -4,11 +4,13 @@ exports.activate = void 0;
 // This script will be run within VS Code
 // It can access the main VS Code APIs directly
 const vscode_1 = require("vscode");
-// Status bar item
+const webviewPanel_1 = require("./webviewPanel/webviewPanel");
+// Init the extension
 let myStatusBarItem;
 // Function called after activation event
 function activate(context) {
     // Fetch words from json file
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const fs = require("fs");
     const rawdata = fs.readFileSync(`${context.extensionPath}/media/words.json`, "utf8");
     const data = JSON.parse(rawdata);
@@ -16,20 +18,21 @@ function activate(context) {
     // Add status bar icon
     myStatusBarItem = vscode_1.window.createStatusBarItem(vscode_1.StatusBarAlignment.Left, 1);
     myStatusBarItem.command = "warmUp.start";
+    myStatusBarItem.tooltip = "Start typing test";
+    myStatusBarItem.text = `$(record-keys) Warm Up`;
     context.subscriptions.push(myStatusBarItem);
     // Display status bar icon
-    myStatusBarItem.text = `$(record-keys) Warm Up`;
     myStatusBarItem.show();
-    // Register start command
+    // Register start command and do stuff
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.start", () => {
         // Create or show webview
-        WarmUpPanel.createOrShow(context.extensionUri);
+        webviewPanel_1.default.createOrShow(context.extensionUri);
         // Send all user settings with message
-        if (WarmUpPanel.currentPanel) {
-            WarmUpPanel.currentPanel.sendAllConfigMessage(words);
+        if (webviewPanel_1.default.currentPanel) {
+            webviewPanel_1.default.currentPanel.sendAllConfigMessage(words);
         }
     }));
-    // Register switch language command
+    // Register switchLanguage command
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.switchLanguage", async function showQuickPick() {
         const userChoice = await vscode_1.window.showQuickPick([
             "english",
@@ -45,247 +48,81 @@ function activate(context) {
             "russian",
             "finnish",
             "englishTop1000",
-            "javascriptTemp",
         ], {
-            placeHolder: "Choose a specific language to practice with",
+            placeHolder: "Choose a specific language to practice with.",
         });
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.switchLanguage", userChoice, vscode_1.ConfigurationTarget.Global);
         // Send message to webview if it exists
-        if (WarmUpPanel.currentPanel) {
-            WarmUpPanel.currentPanel.sendConfigMessage("switchLanguage", userChoice);
+        if (webviewPanel_1.default.currentPanel) {
+            webviewPanel_1.default.currentPanel.sendConfigMessage("switchLanguage", userChoice);
         }
     }));
-    // Register switch typing mode command
+    // Register switchTypingMode command
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.switchTypingMode", async function showQuickPick() {
         // Get user choice
-        const userChoice = await vscode_1.window.showQuickPick(["wordcount", "time"], {
-            placeHolder: "Practice a set number of words or against a timer",
+        const userChoice = await vscode_1.window.showQuickPick([
+            "words (fixed amount)",
+            "words (against the clock)",
+            "code snippets",
+        ], {
+            placeHolder: "Practice with a fixed amount of words, against the clock or with code snippets.",
         });
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.switchTypingMode", userChoice, vscode_1.ConfigurationTarget.Global);
         // Send message to webview if it exists
-        if (WarmUpPanel.currentPanel) {
-            WarmUpPanel.currentPanel.sendConfigMessage("switchTypingMode", userChoice);
+        if (webviewPanel_1.default.currentPanel) {
+            webviewPanel_1.default.currentPanel.sendConfigMessage("switchTypingMode", userChoice);
         }
     }));
-    // Register toggle punctuation command
+    // Register togglePunctuation command
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.togglePunctuation", async function showQuickPick() {
         // Get user choice
         const userChoice = await vscode_1.window.showQuickPick(["false", "true"], {
-            placeHolder: "Activate/deactivate punctuation",
+            placeHolder: 'Enable or disable punctuation (doesn\'t concern "code snippets" mode).',
         });
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.togglePunctuation", userChoice, vscode_1.ConfigurationTarget.Global);
         // Send message to webview if it exists
-        if (WarmUpPanel.currentPanel) {
-            WarmUpPanel.currentPanel.sendConfigMessage("togglePunctuation", userChoice);
+        if (webviewPanel_1.default.currentPanel) {
+            webviewPanel_1.default.currentPanel.sendConfigMessage("togglePunctuation", userChoice);
         }
     }));
-    // Register change word/time count
+    // Register changeCount command
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.changeCount", async function showQuickPick() {
         // Get user choice
         const userChoice = await vscode_1.window.showQuickPick(["15", "30", "60", "120", "240"], {
-            placeHolder: "Change the amount of words or the timer (depending on the typing mode)",
+            placeHolder: 'Change the amount of words or the clock timer (doesn\'t concern "code snippets" mode).',
         });
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.changeCount", userChoice, vscode_1.ConfigurationTarget.Global);
         // Send message to webview if it exists
-        if (WarmUpPanel.currentPanel) {
-            WarmUpPanel.currentPanel.sendConfigMessage("changeCount", userChoice);
+        if (webviewPanel_1.default.currentPanel) {
+            webviewPanel_1.default.currentPanel.sendConfigMessage("changeCount", userChoice);
         }
     }));
     // Register webview panel serializer
     if (vscode_1.window.registerWebviewPanelSerializer) {
         // Make sure we register a serializer in activation event
-        vscode_1.window.registerWebviewPanelSerializer(WarmUpPanel.viewType, {
+        vscode_1.window.registerWebviewPanelSerializer(webviewPanel_1.default.viewType, {
             async deserializeWebviewPanel(webviewPanel, state) {
                 // Reset the webview options so we use latest uri for `localResourceRoots`.
                 webviewPanel.webview.options = {
                     enableScripts: true,
                     localResourceRoots: [vscode_1.Uri.joinPath(context.extensionUri, "media")],
                 };
-                WarmUpPanel.revive(webviewPanel, context.extensionUri);
+                webviewPanel_1.default.revive(webviewPanel, context.extensionUri);
             },
         });
     }
 }
 exports.activate = activate;
-// Manages webview panel
-class WarmUpPanel {
-    constructor(panel, extensionUri) {
-        this._disposables = [];
-        this._panel = panel;
-        this._extensionUri = extensionUri;
-        // Set the webview's initial html content
-        this.update();
-        // Listen for when the panel is disposed
-        // This happens when the user closes the panel or when the panel is closed programmatically
-        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        // Handle messages from the webview
-        this._panel.webview.onDidReceiveMessage(async (message) => {
-            switch (message.command) {
-                case "changeCount":
-                    // Update the configuration value with user choice
-                    await vscode_1.workspace
-                        .getConfiguration()
-                        .update("warmUp.changeCount", message.count.toString(), vscode_1.ConfigurationTarget.Global);
-            }
-        }, null, this._disposables);
-    }
-    static createOrShow(extensionUri) {
-        const column = vscode_1.window.activeTextEditor
-            ? vscode_1.window.activeTextEditor.viewColumn
-            : undefined;
-        // If we already have a panel, show it.
-        if (WarmUpPanel.currentPanel) {
-            WarmUpPanel.currentPanel._panel.reveal(column);
-            return;
-        }
-        // Otherwise, create a new panel.
-        const panel = vscode_1.window.createWebviewPanel(WarmUpPanel.viewType, "Warm Up", column || vscode_1.ViewColumn.One, {
-            // Enable javascript in the webview
-            enableScripts: true,
-            retainContextWhenHidden: true,
-            // And restrict the webview to only loading content from our extension's `media` directory.
-            localResourceRoots: [vscode_1.Uri.joinPath(extensionUri, "media")],
-        });
-        WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
-    }
-    static revive(panel, extensionUri) {
-        WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
-    }
-    sendAllConfigMessage(words) {
-        this._panel.webview.postMessage({
-            type: "allConfig",
-            words: words,
-            language: vscode_1.workspace.getConfiguration().get("warmUp.switchLanguage"),
-            mode: vscode_1.workspace.getConfiguration().get("warmUp.switchTypingMode"),
-            count: vscode_1.workspace.getConfiguration().get("warmUp.changeCount"),
-            punctuation: vscode_1.workspace.getConfiguration().get("warmUp.togglePunctuation"),
-        });
-    }
-    sendConfigMessage(config, value) {
-        this._panel.webview.postMessage({
-            type: "singleConfig",
-            config: config,
-            value: value,
-        });
-    }
-    dispose() {
-        WarmUpPanel.currentPanel = undefined;
-        // Clean up our resources
-        this._panel.dispose();
-        while (this._disposables.length) {
-            const x = this._disposables.pop();
-            if (x) {
-                x.dispose();
-            }
-        }
-    }
-    update() {
-        const webview = this._panel.webview;
-        this._panel.webview.html = this.getHtmlForWebview(webview);
-        this._panel.title = "Warm Up";
-    }
-    getHtmlForWebview(webview) {
-        // Uri we use to load this script in the webview
-        const scriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "main.js"));
-        // Uri to load styles into webview
-        const styleVSCodeUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "vscode.css"));
-        const stylesGameUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "game.css"));
-        const stylesThemeUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "theme.css"));
-        // Use a nonce to only allow specific scripts to be run
-        const nonce = getNonce();
-        return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-
-				<!--
-					Use a content security policy to only allow loading images from https or from our extension directory,
-					and only allow scripts that have a specific nonce.
-				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
-
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-				<link href="${styleVSCodeUri}" rel="stylesheet">
-				<link href="${stylesGameUri}" rel="stylesheet">
-				<link href="${stylesThemeUri}" rel="stylesheet">
-
-				<title>Warm Up</title>
-			</head> 
-      <body>
-        <div id="top">
-          <div id="logs"> </div>
-          <h2 id="header">
-            Warm Up - Practice typing
-          </h2>
-          <p>Hit "ctrl+shift+p" and enter "warmup" to see available commands</p>
-        </div>
-
-        <div id="command-center">
-          <div class="bar">
-            <div id="left-wing">
-              <span id="word-count">
-                <span id="wc-15">15</span>
-                <text> / </text>
-                <span id="wc-30">30</span>
-                <text> / </text>
-                <span id="wc-60">60</span>
-                <text> / </text>
-                <span id="wc-120">120</span>
-                <text> / </text>
-                <span id="wc-240">240</span>
-              </span>
-              <span id="time-count">
-                <span id="tc-15">15</span>
-                <text> / </text>
-                <span id="tc-30">30</span>
-                <text> / </text>
-                <span id="tc-60">60</span>
-                <text> / </text>
-                <span id="tc-120">120</span>
-                <text> / </text>
-                <span id="tc-240">240</span>
-              </span>
-            </div>
-            <div id="right-wing">WPM: XX / ACC: XX</div>
-          </div>
-          <div id="typing-area">
-            <div id="text-display"></div>
-            <div class="bar">
-              <input id="input-field" type="text" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" tabindex="1"/>
-              <button id="restart-button" tabindex="2">restart</button>
-            </div>
-          </div>
-        </div>
-        <h1 id="lines-of-code-counter"></h1>
-        <script nonce="${nonce}" src="${scriptUri}"></script>
-      </body>
-			</html>`;
-    }
-    panelExists() {
-        return WarmUpPanel.currentPanel !== undefined;
-    }
-}
-WarmUpPanel.viewType = "warmUp";
-// Function to generate nonce
-function getNonce() {
-    let text = "";
-    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (let i = 0; i < 32; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-}
 //# sourceMappingURL=extension.js.map

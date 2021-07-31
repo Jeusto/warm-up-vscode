@@ -3,12 +3,18 @@
 // It cannot access the main VS Code APIs directly
 
 (function () {
+  // Global
+
+  // Words mode
+
+  // Code mode
+
   // Get document element
   const textDisplay = document.querySelector("#text-display");
   const inputField = document.querySelector("#input-field");
 
   // Initialize typing mode variables
-  let typingMode = "wordcount";
+  let typingMode = "words (fixed amount)";
   let wordCount;
   let timeCount;
 
@@ -35,7 +41,7 @@
     setPunctuation(previousState.punctuation);
   }
 
-  // Handle messages sent from the extensif to the webview
+  // Handle messages sent from the extension to the webview
   window.addEventListener("message", (event) => {
     const message = event.data;
 
@@ -107,7 +113,7 @@
     inputField.className = "";
 
     switch (typingMode) {
-      case "wordcount":
+      case "words (fixed amount)":
         textDisplay.style.height = "auto";
 
         textDisplay.innerHTML = "";
@@ -127,7 +133,7 @@
         }
         break;
 
-      case "time":
+      case "words (against the clock)":
         textDisplay.style.height = "3.2rem";
 
         document.querySelector(`#tc-${timeCount}`).innerHTML = timeCount;
@@ -204,7 +210,7 @@
   function showResult() {
     let words, minute, acc;
     switch (typingMode) {
-      case "wordcount":
+      case "words (fixed amount)":
         words = correctKeys / 5;
         minute = (Date.now() - startDate) / 1000 / 60;
         let totalKeys = -1;
@@ -213,7 +219,7 @@
         acc = Math.floor((correctKeys / totalKeys) * 100);
         break;
 
-      case "time":
+      case "words (against the clock)":
         words = correctKeys / 5;
 
         minute = timeCount / 60;
@@ -236,9 +242,9 @@
   inputField.addEventListener("keydown", (e) => {
     // Add wrong class to input field
     switch (typingMode) {
-      case "wordcount":
+      case "words (fixed amount)":
         if (currentWord < wordList.length) inputFieldClass();
-      case "time":
+      case "words (against the clock)":
         if (timerActive) inputFieldClass();
     }
     function inputFieldClass() {
@@ -278,11 +284,11 @@
     // If it is the first character entered
     if (currentWord === 0 && inputField.value === "") {
       switch (typingMode) {
-        case "wordcount":
+        case "words (fixed amount)":
           startDate = Date.now();
           break;
 
-        case "time":
+        case "words (against the clock)":
           if (!timerActive) {
             startTimer(timeCount);
             timerActive = true;
@@ -315,7 +321,7 @@
 
       if (inputField.value !== "") {
         // Scroll down text when reach new line
-        if (typingMode === "time") {
+        if (typingMode === "words (against the clock)") {
           const currentWordPosition =
             textDisplay.childNodes[currentWord].getBoundingClientRect();
           const nextWordPosition =
@@ -410,19 +416,33 @@
   function setTypingMode(_mode) {
     const mode = _mode.toLowerCase();
     switch (mode) {
-      case "wordcount":
+      case "words (fixed amount)":
         typingMode = mode;
-        document.querySelector("#word-count").style.display = "inline";
+        document.querySelector("#coding-area").style.display = "none";
         document.querySelector("#time-count").style.display = "none";
+        document.querySelector("#language-selected").style.display = "none";
+        document.querySelector("#typing-area").style.display = "inline";
+        document.querySelector("#word-count").style.display = "inline";
         setText();
         break;
 
-      case "time":
+      case "words (against the clock)":
         typingMode = mode;
+        document.querySelector("#coding-area").style.display = "none";
         document.querySelector("#word-count").style.display = "none";
+        document.querySelector("#language-selected").style.display = "none";
+        document.querySelector("#typing-area").style.display = "inline";
         document.querySelector("#time-count").style.display = "inline";
         setText();
         break;
+
+      case "code snippets":
+        typingMode = mode;
+        document.querySelector("#typing-area").style.display = "none";
+        document.querySelector("#word-count").style.display = "none";
+        document.querySelector("#time-count").style.display = "none";
+        document.querySelector("#coding-area").style.display = "inline";
+        document.querySelector("#language-selected").style.display = "inline";
 
       default:
         console.error(`mode ${mode} is undefine`);

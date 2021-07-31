@@ -6,13 +6,16 @@ body {
 #left-wing,
 #right-wing,
 #text-display,
+#code-display,
 #restart-button,
 #input-field {
   color: var(--vscode-foreground);
 }
 
 #text-display,
-#typing-area {
+#code-display,
+#typing-area,
+#coding-area {
   background: var(--vscode-button-background);
   color: var(--vscode-button-foreground);
 }

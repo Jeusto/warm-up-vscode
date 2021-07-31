@@ -33,8 +33,15 @@ body {
   line-height: 2rem;
 }
 
-#icon {
+#mode-buttons {
   margin-right: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-button {
+  cursor: pointer;
 }
 
 #word-count span,
@@ -52,22 +59,15 @@ body {
   transform: translateY(-2vh);
 }
 
-#theme-area {
-  margin-top: 1rem;
-  padding: 1.4rem 1rem;
-  border-radius: 0.4rem;
-  display: grid;
-  grid-gap: 1rem;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-}
-
-#typing-area {
+#typing-area,
+#coding-area {
   margin-top: 1rem;
   padding: 1.4rem 1rem;
   border-radius: 0.4rem;
 }
 
-#text-display {
+#text-display,
+#code-display {
   margin-bottom: 1rem;
   overflow: hidden;
 }
@@ -91,25 +91,6 @@ body {
   cursor: pointer;
 }
 
-#footer {
-  margin-bottom: 1.2rem;
-  display: flex;
-}
-
-#footer * {
-  text-decoration: none;
-  margin: 0 0.5rem;
-  color: inherit;
-}
-
-#footer .button {
-  cursor: pointer;
-}
-
-#footer a:visited {
-  color: unset;
-}
-
 .hidden {
   display: none !important;
 }
@@ -119,11 +100,16 @@ body,
 #left-wing,
 #right-wing,
 #typing-area,
+#coding-area,
 #theme-area,
 #theme-center,
 #text-display,
+#code-display,
 #restart-button,
-#footer,
 #highlight {
   transition: all 0.4s ease-in-out 0s;
+}
+
+#code-display {
+  height: 3.2rem;
 }

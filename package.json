@@ -8,7 +8,7 @@
 		"url": "https://github.com/Jeusto/vscode-typing-test"
 	},
 	"icon": "icon.png",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"license": "GPL 3.0",
 	"keywords": [
 		"arhun saday",
@@ -39,7 +39,7 @@
 	"contributes": {
 		"configuration": [
 			{
-				"title": "Warm Up: Practice typing",
+				"title": "Warm Up: Typing test",
 				"properties": {
 					"warmUp.switchLanguage": {
 						"type": "string",
@@ -57,8 +57,7 @@
 							"portuguese",
 							"russian",
 							"finnish",
-							"englishTop1000",
-							"javascriptTemp"
+							"englishTop1000"
 						],
 						"default": "english",
 						"description": "Choose a specific language to practice with.",
@@ -72,11 +71,12 @@
 					"warmUp.switchTypingMode": {
 						"type": "string",
 						"enum": [
-							"wordcount",
-							"time"
+							"words (fixed amount)",
+							"words (against the clock)",
+							"code snippets"
 						],
-						"default": "wordcount",
-						"description": "Practice a set number of words or against a timer.",
+						"default": "words (fixed amount)",
+						"description": "Practice with a fixed amount of words, against the clock or with code snippets.",
 						"scope": "window"
 					}
 				}
@@ -91,7 +91,7 @@
 							"false"
 						],
 						"default": "false",
-						"description": "Activate/deactivate punctuation.",
+						"description": "Enable or disable punctuation (doesn't concern \"code snippets\" mode)",
 						"scope": "window"
 					}
 				}
@@ -109,7 +109,7 @@
 							"240"
 						],
 						"default": "15",
-						"description": "Change the amount of words or the timer (depending on the typing mode).",
+						"description": "Change the amount of words or the clock timer (doesn't concern \"code snippets\" mode).",
 						"scope": "window"
 					}
 				}
@@ -118,7 +118,7 @@
 		"commands": [
 			{
 				"command": "warmUp.start",
-				"title": "Start practicing typing",
+				"title": "Start typing test",
 				"category": "Warm Up"
 			},
 			{
