@@ -1,6 +1,6 @@
 # Warm Up
 
-🔥👨‍💻 A VS Code extension to practice and improve your typing speed right inside your code editor.
+🔥👨‍💻 A VS Code extension to practice and improve your typing speed right inside your code editor. Practice with simple words or code snippets.
 
 ## Install
 
@@ -23,12 +23,14 @@ To restart the typing test, press `esc` or click the restart button. If you hold
 
 You can configure the typing test by changing the settings through commands or in the user settings editor.
 
-| Setting Name               | Description                                                             | Default Value |
-| -------------------------- | ----------------------------------------------------------------------- | ------------- |
-| `warmUp.switchLanguage`    | Choose a specific language to practice with.                            | `english`     |
-| `warmUp.switchTypingMode`  | Practice a set number of words or against a timer.                      | `onFailure`   |
-| `warmUp.togglePunctuation` | Activate/deactivate punctuation.                                        | `false`       |
-| `warmUp.changeCount`       | Change the amount of words or the timer (depending on the typing mode). | `15`          |
+| Setting Name                       | Description                                                                | Default Value          |
+| ---------------------------------- | -------------------------------------------------------------------------- | ---------------------- |
+| `warmUp.switchNaturalLanguage`     | Choose a natural language to practice with.                                | `english`              |
+| `warmUp.switchProgrammingLanguage` | Choose a programming language to practice with.                            | `javascript`           |
+| `warmUp.switchTypingMode`          | Practice a fixed amount of words, against the clock or with code snippets. | `words (fixed amount)` |
+| `warmUp.changeCount`               | Change the amount of words or the timer (depending on the typing mode).    | `15`                   |
+| `warmUp.togglePunctuation`         | Enable or disable punctuation (doesn't affect \"code snippets\" mode).     | `false`                |
+| `warmUp.toggleColorBlindMode`      | Enable or disable color bind mode (doesn't concern "code snippets" mode).  | `false`                |
 
 ## Contributing and Feedback
 

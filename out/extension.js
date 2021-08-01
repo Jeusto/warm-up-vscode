@@ -33,8 +33,8 @@ function activate(context) {
             webviewPanel_1.default.currentPanel.sendAllConfigMessage(words, codes);
         }
     }));
-    // Register switchLanguage command
-    context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.switchLanguage", async function showQuickPick() {
+    // Register switchNaturalLanguage command
+    context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.switchNaturalLanguage", async function showQuickPick() {
         const userChoice = await vscode_1.window.showQuickPick([
             "english",
             "italian",
@@ -50,19 +50,19 @@ function activate(context) {
             "finnish",
             "englishTop1000",
         ], {
-            placeHolder: "Choose a specific language to practice with.",
+            placeHolder: "Choose a natural language to practice with.",
         });
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()
-            .update("warmUp.switchLanguage", userChoice, vscode_1.ConfigurationTarget.Global);
+            .update("warmUp.switchNaturalLanguage", userChoice, vscode_1.ConfigurationTarget.Global);
         // Send message to webview if it exists
         if (webviewPanel_1.default.currentPanel) {
-            webviewPanel_1.default.currentPanel.sendConfigMessage("switchLanguage", userChoice);
+            webviewPanel_1.default.currentPanel.sendConfigMessage("switchNaturalLanguage", userChoice);
         }
     }));
-    // Register switchCodeLanguage command
-    context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.switchCodeLanguage", async function showQuickPick() {
+    // Register switchProgrammingLanguage command
+    context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.switchProgrammingLanguage", async function showQuickPick() {
         const userChoice = await vscode_1.window.showQuickPick([
             "javascript",
             "html",
@@ -77,15 +77,15 @@ function activate(context) {
             "go",
             "rust",
         ], {
-            placeHolder: "Choose a specific programming language to practice with.",
+            placeHolder: "Choose a programming language to practice with.",
         });
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()
-            .update("warmUp.switchCodeLanguage", userChoice, vscode_1.ConfigurationTarget.Global);
+            .update("warmUp.switchProgrammingLanguage", userChoice, vscode_1.ConfigurationTarget.Global);
         // Send message to webview if it exists
         if (webviewPanel_1.default.currentPanel) {
-            webviewPanel_1.default.currentPanel.sendConfigMessage("switchCodeLanguage", userChoice);
+            webviewPanel_1.default.currentPanel.sendConfigMessage("switchProgrammingLanguage", userChoice);
         }
     }));
     // Register switchTypingMode command
@@ -96,7 +96,7 @@ function activate(context) {
             "$(watch) words (against the clock)",
             "$(code) code snippets",
         ], {
-            placeHolder: "Practice with a fixed amount of words, against the clock or with code snippets.",
+            placeHolder: "Practice a fixed amount of words, against the clock or with code snippets.",
         });
         if (userChoice === "$(book) words (fixed amount)") {
             userChoice = "words (fixed amount)";
@@ -120,7 +120,7 @@ function activate(context) {
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.togglePunctuation", async function showQuickPick() {
         // Get user choice
         let userChoice = await vscode_1.window.showQuickPick(["$(circle-slash) false", "$(check) true"], {
-            placeHolder: 'Enable or disable punctuation (doesn\'t concern "code snippets" mode).',
+            placeHolder: 'Enable or disable punctuation (doesn\'t affect "code snippets" mode).',
         });
         if (userChoice === "$(circle-slash) false") {
             userChoice = "false";
@@ -141,7 +141,7 @@ function activate(context) {
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.changeCount", async function showQuickPick() {
         // Get user choice
         const userChoice = await vscode_1.window.showQuickPick(["15", "30", "60", "120", "240"], {
-            placeHolder: 'Change the amount of words or the clock timer (doesn\'t concern "code snippets" mode).',
+            placeHolder: 'Change the amount of words or the timer (doesn\'t affect "code snippets" mode).',
         });
         // Update the configuration value with user choice
         await vscode_1.workspace
@@ -156,7 +156,7 @@ function activate(context) {
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.toggleColorBlindMode", async function showQuickPick() {
         // Get user choice
         let userChoice = await vscode_1.window.showQuickPick(["$(circle-slash) false", "$(check) true"], {
-            placeHolder: 'Enable or disable color blind mode (doesn\'t concern "code snippets" mode).',
+            placeHolder: 'Enable or disable color blind mode (doesn\'t affect "code snippets" mode).',
         });
         if (userChoice === "$(circle-slash) false") {
             userChoice = "false";

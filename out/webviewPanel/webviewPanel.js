@@ -54,10 +54,12 @@ class WarmUpPanel {
             type: "allConfig",
             words: words,
             codes: codes,
-            language: vscode_1.workspace.getConfiguration().get("warmUp.switchLanguage"),
+            language: vscode_1.workspace
+                .getConfiguration()
+                .get("warmUp.switchNaturalLanguage"),
             codeLanguage: vscode_1.workspace
                 .getConfiguration()
-                .get("warmUp.switchCodeLanguage"),
+                .get("warmUp.switchProgrammingLanguage"),
             mode: vscode_1.workspace.getConfiguration().get("warmUp.switchTypingMode"),
             count: vscode_1.workspace.getConfiguration().get("warmUp.changeCount"),
             punctuation: vscode_1.workspace.getConfiguration().get("warmUp.togglePunctuation"),

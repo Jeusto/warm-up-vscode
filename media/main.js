@@ -40,18 +40,32 @@
     } else {
       // Message to change a single setting
       switch (message.config) {
-        case "switchLanguage":
+        case "switchNaturalLanguage":
           if (message.value) {
             setLanguage(message.value);
-            setText();
-            vscode.setState({ ...previousState, language: message.value });
-            previousState = vscode.getState();
+            if (previousState.mode === "code snippets") {
+              setTypingMode("words (fixed amount)");
+              vscode.setState({
+                ...previousState,
+                mode: "words (fixed amount)",
+                language: message.value,
+              });
+              previousState = vscode.getState();
+            } else {
+              setText();
+              vscode.setState({ ...previousState, language: message.value });
+              previousState = vscode.getState();
+            }
           }
           break;
-        case "switchCodeLanguage":
+        case "switchProgrammingLanguage":
           setCodeLanguage(message.value);
-          setCodeText();
-          vscode.setState({ ...previousState, codeLanguage: message.value });
+          setTypingMode("code snippets");
+          vscode.setState({
+            ...previousState,
+            mode: "code snippets",
+            codeLanguage: message.value,
+          });
           previousState = vscode.getState();
           break;
         case "switchTypingMode":

@@ -52,10 +52,10 @@ export function activate(context: ExtensionContext) {
     })
   );
 
-  // Register switchLanguage command
+  // Register switchNaturalLanguage command
   context.subscriptions.push(
     commands.registerCommand(
-      "warmUp.switchLanguage",
+      "warmUp.switchNaturalLanguage",
       async function showQuickPick() {
         const userChoice = await window.showQuickPick(
           [
@@ -74,7 +74,7 @@ export function activate(context: ExtensionContext) {
             "englishTop1000",
           ],
           {
-            placeHolder: "Choose a specific language to practice with.",
+            placeHolder: "Choose a natural language to practice with.",
           }
         );
 
@@ -82,7 +82,7 @@ export function activate(context: ExtensionContext) {
         await workspace
           .getConfiguration()
           .update(
-            "warmUp.switchLanguage",
+            "warmUp.switchNaturalLanguage",
             userChoice,
             ConfigurationTarget.Global
           );
@@ -90,7 +90,7 @@ export function activate(context: ExtensionContext) {
         // Send message to webview if it exists
         if (WarmUpPanel.currentPanel) {
           WarmUpPanel.currentPanel.sendConfigMessage(
-            "switchLanguage",
+            "switchNaturalLanguage",
             userChoice
           );
         }
@@ -98,10 +98,10 @@ export function activate(context: ExtensionContext) {
     )
   );
 
-  // Register switchCodeLanguage command
+  // Register switchProgrammingLanguage command
   context.subscriptions.push(
     commands.registerCommand(
-      "warmUp.switchCodeLanguage",
+      "warmUp.switchProgrammingLanguage",
       async function showQuickPick() {
         const userChoice = await window.showQuickPick(
           [
@@ -119,8 +119,7 @@ export function activate(context: ExtensionContext) {
             "rust",
           ],
           {
-            placeHolder:
-              "Choose a specific programming language to practice with.",
+            placeHolder: "Choose a programming language to practice with.",
           }
         );
 
@@ -128,7 +127,7 @@ export function activate(context: ExtensionContext) {
         await workspace
           .getConfiguration()
           .update(
-            "warmUp.switchCodeLanguage",
+            "warmUp.switchProgrammingLanguage",
             userChoice,
             ConfigurationTarget.Global
           );
@@ -136,7 +135,7 @@ export function activate(context: ExtensionContext) {
         // Send message to webview if it exists
         if (WarmUpPanel.currentPanel) {
           WarmUpPanel.currentPanel.sendConfigMessage(
-            "switchCodeLanguage",
+            "switchProgrammingLanguage",
             userChoice
           );
         }
@@ -158,7 +157,7 @@ export function activate(context: ExtensionContext) {
           ],
           {
             placeHolder:
-              "Practice with a fixed amount of words, against the clock or with code snippets.",
+              "Practice a fixed amount of words, against the clock or with code snippets.",
           }
         );
         if (userChoice === "$(book) words (fixed amount)") {
@@ -199,7 +198,7 @@ export function activate(context: ExtensionContext) {
           ["$(circle-slash) false", "$(check) true"],
           {
             placeHolder:
-              'Enable or disable punctuation (doesn\'t concern "code snippets" mode).',
+              'Enable or disable punctuation (doesn\'t affect "code snippets" mode).',
           }
         );
 
@@ -239,7 +238,7 @@ export function activate(context: ExtensionContext) {
           ["15", "30", "60", "120", "240"],
           {
             placeHolder:
-              'Change the amount of words or the clock timer (doesn\'t concern "code snippets" mode).',
+              'Change the amount of words or the timer (doesn\'t affect "code snippets" mode).',
           }
         );
 
@@ -265,7 +264,7 @@ export function activate(context: ExtensionContext) {
           ["$(circle-slash) false", "$(check) true"],
           {
             placeHolder:
-              'Enable or disable color blind mode (doesn\'t concern "code snippets" mode).',
+              'Enable or disable color blind mode (doesn\'t affect "code snippets" mode).',
           }
         );
 

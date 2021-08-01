@@ -94,10 +94,12 @@ export default class WarmUpPanel {
       type: "allConfig",
       words: words,
       codes: codes,
-      language: workspace.getConfiguration().get("warmUp.switchLanguage"),
+      language: workspace
+        .getConfiguration()
+        .get("warmUp.switchNaturalLanguage"),
       codeLanguage: workspace
         .getConfiguration()
-        .get("warmUp.switchCodeLanguage"),
+        .get("warmUp.switchProgrammingLanguage"),
       mode: workspace.getConfiguration().get("warmUp.switchTypingMode"),
       count: workspace.getConfiguration().get("warmUp.changeCount"),
       punctuation: workspace.getConfiguration().get("warmUp.togglePunctuation"),

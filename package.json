@@ -2,7 +2,7 @@
 	"name": "warm-up-typing-test",
 	"displayName": "Warm Up - Typing test",
 	"publisher": "Jeusto",
-	"description": "🔥👨‍💻 Improve your typing speed by practicing right inside your code editor.",
+	"description": "🔥👨‍💻 Improve your typing speed by practicing right inside your code editor. Practice with simple words or code snippets.",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Jeusto/vscode-typing-test"
@@ -41,7 +41,7 @@
 			{
 				"title": "Warm Up: Typing test",
 				"properties": {
-					"warmUp.switchLanguage": {
+					"warmUp.switchNaturalLanguage": {
 						"type": "string",
 						"enum": [
 							"english",
@@ -60,7 +60,7 @@
 							"englishTop1000"
 						],
 						"default": "english",
-						"description": "Choose a specific language to practice with.",
+						"description": "Choose a natural language to practice with.",
 						"scope": "window"
 					}
 				}
@@ -68,7 +68,7 @@
 			{
 				"title": "Warm Up: Typing test",
 				"properties": {
-					"warmUp.switchCodeLanguage": {
+					"warmUp.switchProgrammingLanguage": {
 						"type": "string",
 						"enum": [
 							"javascript",
@@ -116,7 +116,7 @@
 							"false"
 						],
 						"default": "false",
-						"description": "Enable or disable punctuation (doesn't concern \"code snippets\" mode)",
+						"description": "Enable or disable punctuation (doesn't affect \"code snippets\" mode)",
 						"scope": "window"
 					}
 				}
@@ -162,12 +162,12 @@
 				"category": "Warm Up"
 			},
 			{
-				"command": "warmUp.switchLanguage",
-				"title": "Switch language",
+				"command": "warmUp.switchNaturalLanguage",
+				"title": "Switch natural language",
 				"category": "Warm Up"
 			},
 			{
-				"command": "warmUp.switchCodeLanguage",
+				"command": "warmUp.switchProgrammingLanguage",
 				"title": "Switch programming language",
 				"category": "Warm Up"
 			},
