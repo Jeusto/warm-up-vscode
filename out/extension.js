@@ -5,7 +5,7 @@ exports.activate = void 0;
 // It can access the main VS Code APIs directly
 const vscode_1 = require("vscode");
 const webviewPanel_1 = require("./webviewPanel/webviewPanel");
-// Init the status bar icon
+// Init status bar icon
 let myStatusBarItem;
 // Function called after activation event
 function activate(context) {
@@ -150,6 +150,27 @@ function activate(context) {
         // Send message to webview if it exists
         if (webviewPanel_1.default.currentPanel) {
             webviewPanel_1.default.currentPanel.sendConfigMessage("changeCount", userChoice);
+        }
+    }));
+    // Register toggleColorBlind command
+    context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.toggleColorBlindMode", async function showQuickPick() {
+        // Get user choice
+        let userChoice = await vscode_1.window.showQuickPick(["$(circle-slash) false", "$(check) true"], {
+            placeHolder: 'Enable or disable color blind mode (doesn\'t concern "code snippets" mode).',
+        });
+        if (userChoice === "$(circle-slash) false") {
+            userChoice = "false";
+        }
+        else if (userChoice === "$(check) true") {
+            userChoice = "true";
+        }
+        // Update the configuration value with user choice
+        await vscode_1.workspace
+            .getConfiguration()
+            .update("warmUp.toggleColorBlindMode", userChoice, vscode_1.ConfigurationTarget.Global);
+        // Send message to webview if it exists
+        if (webviewPanel_1.default.currentPanel) {
+            webviewPanel_1.default.currentPanel.sendConfigMessage("toggleColorBlindMode", userChoice);
         }
     }));
     // Register webview panel serializer

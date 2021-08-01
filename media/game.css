@@ -47,8 +47,8 @@ body {
 #code-display,
 #typing-area,
 #coding-area {
-  background: var(--vscode-button-background);
-  color: var(--vscode-button-foreground);
+  background: #404754;
+  color: #ffffff;
 }
 
 .bar {
@@ -105,12 +105,8 @@ body {
   width: 100%;
   content: "";
   border-radius: 0.4rem;
-  background: linear-gradient(
-    to top,
-    var(--vscode-button-background) 20%,
-    rgba(255, 255, 255, 0) 80%
-  );
-  pointer-events: none; /* so the text is still selectable */
+  background: linear-gradient(to top, #404754 20%, rgba(255, 255, 255, 0) 80%);
+  pointer-events: none;
 }
 
 #text-display,
@@ -135,7 +131,8 @@ body {
 
 #restart-button,
 #input-field {
-  background-color: var(--vscode-editor-background);
+  background: var(--vscode-editor-background);
+
   color: var(--vscode-foreground);
 }
 
@@ -177,7 +174,7 @@ body {
 }
 
 .char.topass {
-  opacity: 0.5;
+  opacity: 0.62;
 }
 
 .char.notpassed {

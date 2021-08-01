@@ -14,7 +14,7 @@ import {
 
 import WarmUpPanel from "./webviewPanel/webviewPanel";
 
-// Init the status bar icon
+// Init status bar icon
 let myStatusBarItem: StatusBarItem;
 
 // Function called after activation event
@@ -251,6 +251,45 @@ export function activate(context: ExtensionContext) {
         // Send message to webview if it exists
         if (WarmUpPanel.currentPanel) {
           WarmUpPanel.currentPanel.sendConfigMessage("changeCount", userChoice);
+        }
+      }
+    )
+  );
+  // Register toggleColorBlind command
+  context.subscriptions.push(
+    commands.registerCommand(
+      "warmUp.toggleColorBlindMode",
+      async function showQuickPick() {
+        // Get user choice
+        let userChoice = await window.showQuickPick(
+          ["$(circle-slash) false", "$(check) true"],
+          {
+            placeHolder:
+              'Enable or disable color blind mode (doesn\'t concern "code snippets" mode).',
+          }
+        );
+
+        if (userChoice === "$(circle-slash) false") {
+          userChoice = "false";
+        } else if (userChoice === "$(check) true") {
+          userChoice = "true";
+        }
+
+        // Update the configuration value with user choice
+        await workspace
+          .getConfiguration()
+          .update(
+            "warmUp.toggleColorBlindMode",
+            userChoice,
+            ConfigurationTarget.Global
+          );
+
+        // Send message to webview if it exists
+        if (WarmUpPanel.currentPanel) {
+          WarmUpPanel.currentPanel.sendConfigMessage(
+            "toggleColorBlindMode",
+            userChoice
+          );
         }
       }
     )

@@ -11,7 +11,7 @@ import {
 
 // Manages webview panel
 export default class WarmUpPanel {
-  // Track the currently panel. Only allow a single panel to exist at a time
+  // Track the currently panel and only allow a single panel to exist at a time
   public static currentPanel: WarmUpPanel | undefined;
   public static readonly viewType = "warmUp";
   private readonly _panel: WebviewPanel;
@@ -101,6 +101,9 @@ export default class WarmUpPanel {
       mode: workspace.getConfiguration().get("warmUp.switchTypingMode"),
       count: workspace.getConfiguration().get("warmUp.changeCount"),
       punctuation: workspace.getConfiguration().get("warmUp.togglePunctuation"),
+      colorBlindMode: workspace
+        .getConfiguration()
+        .get("warmUp.toggleColorBlindMode"),
     });
   }
 
@@ -133,6 +136,11 @@ export default class WarmUpPanel {
     const webview = this._panel.webview;
     this._panel.webview.html = this.getHtmlForWebview(webview);
     this._panel.title = "Warm Up";
+    this._panel.iconPath = Uri.joinPath(
+      this._extensionUri,
+      "media",
+      "icon.svg"
+    );
   }
 
   // Function that returns the html for the webview
@@ -151,6 +159,9 @@ export default class WarmUpPanel {
     );
     const stylePrismUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "prism.css")
+    );
+    const styleColorBlindUri = webview.asWebviewUri(
+      Uri.joinPath(this._extensionUri, "media", "colorblind.css")
     );
 
     // Use a nonce to only allow specific scripts to be run
@@ -184,6 +195,7 @@ export default class WarmUpPanel {
 				<link href="${styleVSCodeUri}" rel="stylesheet">
 				<link href="${styleGameUri}" rel="stylesheet">
 				<link href="${stylePrismUri}" rel="stylesheet">
+				<link href="${styleColorBlindUri}" rel="stylesheet">
 
 				<title>Warm Up</title>
 			</head> 

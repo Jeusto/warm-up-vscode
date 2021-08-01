@@ -1,6 +1,6 @@
-// @ts-nocheck
 // This script will be run within the webview itself
 // It cannot access the main VS Code APIs directly
+// @ts-nocheck
 
 (function () {
   //====================================================
@@ -23,6 +23,7 @@
         count: message.count,
         mode: message.mode,
         punctuation: message.punctuation,
+        colorBlindMode: message.colorBlindMode,
       });
       previousState = vscode.getState();
 
@@ -35,6 +36,7 @@
       setTimeCount(message.count);
       setTypingMode(message.mode);
       setPunctuation(message.punctuation);
+      setColorBlindMode(message.colorBlindMode);
     } else {
       // Message to change a single setting
       switch (message.config) {
@@ -61,6 +63,11 @@
         case "togglePunctuation":
           setPunctuation(message.value);
           vscode.setState({ ...previousState, punctuation: message.value });
+          previousState = vscode.getState();
+          break;
+        case "toggleColorBlindMode":
+          setColorBlindMode(message.value);
+          vscode.setState({ ...previousState, colorBlindMode: message.value });
           previousState = vscode.getState();
           break;
         case "changeCount":
@@ -123,6 +130,7 @@
     setWordCount(previousState.count);
     setTimeCount(previousState.count);
     setTypingMode(previousState.mode);
+    setColorBlindMode(previousState.mode);
     setPunctuation(previousState.punctuation);
   }
 
@@ -181,6 +189,17 @@
 
       default:
         console.error(`mode ${mode} is undefine`);
+    }
+  }
+
+  // Function to change color blind mode
+  function setColorBlindMode(_mode) {
+    let body = document.querySelector("body");
+    if (_mode === "true" && !body.classList.contains("colorblind")) {
+      body.classList.add("colorblind");
+    }
+    if (_mode === "false" && body.classList.contains("colorblind")) {
+      body.classList.remove("colorblind");
     }
   }
 
@@ -294,7 +313,7 @@
     ).innerHTML = `WPM: ${wpm} / ACC: ${acc}`;
   }
 
-  // Key is pressed in input field
+  // Key is pressed in input field (game logic)
   inputField.addEventListener("keydown", (e) => {
     // Add wrong class to input field
     switch (typingMode) {
@@ -495,13 +514,13 @@
   }
 
   // Functions to change language setting
-  function setLanguage(_lang) {
-    selectedLanguageWords = allWords[_lang];
+  function setLanguage(lang) {
+    selectedLanguageWords = allWords[lang];
   }
 
   // Function to change punctuation setting
-  function setPunctuation(_punc) {
-    const punc = _punc.toLowerCase();
+  function setPunctuation(punct) {
+    const punc = punct.toLowerCase();
     if (punc === "true") {
       punctuation = true;
       setText();
@@ -553,6 +572,7 @@
   //====================================================
   // Code mode
   //====================================================
+  // Function to set new code snippet and reset states
   function setCodeText(e) {
     e = e || window.event;
     var keepWordList = e && e.shiftKey;
@@ -589,6 +609,7 @@
     return;
   }
 
+  // Function to show the code snippet in the dom
   function showCodeText() {
     document.getElementById("code-pre").innerHTML = DOMPurify.sanitize(
       highlightCode(currentCode)
@@ -599,6 +620,7 @@
     return;
   }
 
+  // Function to show end results for code snippets mode
   function showCodeResults() {
     let numberOfCharacters = document.querySelectorAll(".char").length;
     let numberOfCorrectTypings = document.querySelectorAll(".passed").length;
@@ -635,12 +657,12 @@
   document.addEventListener("keypress", (e) => handleKeyPress(e));
 
   // Function to set code language
-  function setCodeLanguage(_lang) {
-    selectedLanguageName = _lang;
+  function setCodeLanguage(lang) {
+    selectedLanguageName = lang;
     document.querySelector("#language-selected").innerHTML =
       selectedLanguageName.charAt(0).toUpperCase() +
       selectedLanguageName.slice(1);
-    selectedLanguageCodes = allCodes[_lang];
+    selectedLanguageCodes = allCodes[lang];
     return;
   }
 
