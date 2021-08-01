@@ -72,7 +72,17 @@
 						"type": "string",
 						"enum": [
 							"javascript",
-							"python"
+							"html",
+							"css",
+							"sql",
+							"pyton",
+							"java",
+							"c#",
+							"typescript",
+							"c++",
+							"c",
+							"go",
+							"rust"
 						],
 						"default": "javascript",
 						"description": "Choose a specific programming language to practice with.",

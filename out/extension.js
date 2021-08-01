@@ -63,7 +63,20 @@ function activate(context) {
     }));
     // Register switchCodeLanguage command
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.switchCodeLanguage", async function showQuickPick() {
-        const userChoice = await vscode_1.window.showQuickPick(["javascript", "python"], {
+        const userChoice = await vscode_1.window.showQuickPick([
+            "javascript",
+            "html",
+            "css",
+            "sql",
+            "pyton",
+            "java",
+            "c#",
+            "typescript",
+            "c++",
+            "c",
+            "go",
+            "rust",
+        ], {
             placeHolder: "Choose a specific programming language to practice with.",
         });
         // Update the configuration value with user choice
@@ -78,13 +91,22 @@ function activate(context) {
     // Register switchTypingMode command
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.switchTypingMode", async function showQuickPick() {
         // Get user choice
-        const userChoice = await vscode_1.window.showQuickPick([
-            "words (fixed amount)",
-            "words (against the clock)",
-            "code snippets",
+        let userChoice = await vscode_1.window.showQuickPick([
+            "$(book) words (fixed amount)",
+            "$(watch) words (against the clock)",
+            "$(code) code snippets",
         ], {
             placeHolder: "Practice with a fixed amount of words, against the clock or with code snippets.",
         });
+        if (userChoice === "$(book) words (fixed amount)") {
+            userChoice = "words (fixed amount)";
+        }
+        else if (userChoice === "$(watch) words (against the clock)") {
+            userChoice = "words (against the clock)";
+        }
+        else if (userChoice === "$(code) code snippets") {
+            userChoice = "code snippets";
+        }
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()
@@ -97,9 +119,15 @@ function activate(context) {
     // Register togglePunctuation command
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.togglePunctuation", async function showQuickPick() {
         // Get user choice
-        const userChoice = await vscode_1.window.showQuickPick(["false", "true"], {
+        let userChoice = await vscode_1.window.showQuickPick(["$(circle-slash) false", "$(check) true"], {
             placeHolder: 'Enable or disable punctuation (doesn\'t concern "code snippets" mode).',
         });
+        if (userChoice === "$(circle-slash) false") {
+            userChoice = "false";
+        }
+        else if (userChoice === "$(check) true") {
+            userChoice = "true";
+        }
         // Update the configuration value with user choice
         await vscode_1.workspace
             .getConfiguration()

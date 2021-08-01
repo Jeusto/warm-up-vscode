@@ -4989,12 +4989,45 @@
   },
   "codes": {
     "javascript": [
-      "first js code",
-      "second js code"
+      "javascript",
+      "const btn = document.getElementById('btn')\nlet count = 0\n\nfunction render() {\n  btn.innerText = `Count: ${count}`\n}\n\nbtn.addEventListener('click', () => {\n  // Count from 1 to 10.\n  if (count < 10) {\n    count += 1\n    render()\n  }\n})"
+    ],
+    "html": [
+      "yo\n\tlo",
+      "html"
+    ],
+    "css": [
+      "css"
+    ],
+    "sql": [
+      "sql"
     ],
     "python": [
-      "first py code",
-      "second py code"
+      "python"
+    ],
+    "java": [
+      "java"
+    ],
+    "c#": [
+      "c#"
+    ],
+    "typescript": [
+      "typescript"
+    ],
+    "c++": [
+      "c++"
+    ],
+    "c": [
+      "c"
+    ],
+    "go": [
+      "go"
+    ],
+    "ruby": [
+      "ruby"
+    ],
+    "rust": [
+      "rust"
     ]
   }
 }

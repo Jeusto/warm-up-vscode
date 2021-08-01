@@ -149,9 +149,6 @@ export default class WarmUpPanel {
     const styleGameUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "game.css")
     );
-    const styleThemeUri = webview.asWebviewUri(
-      Uri.joinPath(this._extensionUri, "media", "theme.css")
-    );
     const stylePrismUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "prism.css")
     );
@@ -186,19 +183,16 @@ export default class WarmUpPanel {
         ></script>
 				<link href="${styleVSCodeUri}" rel="stylesheet">
 				<link href="${styleGameUri}" rel="stylesheet">
-				<link href="${styleThemeUri}" rel="stylesheet">
 				<link href="${stylePrismUri}" rel="stylesheet">
 
 				<title>Warm Up</title>
 			</head> 
       <body>
         <div id="top">
-          <div id="charDimensions"></div>
-          <div id="logs"></div>
           <h2 id="header">
             Warm Up - Typing test
           </h2>
-          <p>Hit "ctrl+shift+p" and enter "warmup" to see available commands</p>
+          <p id="subtitle">Hit "ctrl+shift+p" and enter "warmup" to see available commands</p>
         </div>
 
         <div id="command-center">
@@ -244,12 +238,10 @@ export default class WarmUpPanel {
                 <span id="cursor" style="left: 0px; top: 0px" class="cursor"></span>
               </div>
             </div>
-            <div class="bar">
-              <button id="restart-button" class="button codeButton" tabindex="2">restart</button>
-            </div>  
+            <button id="restart-button" class=" codeButton" tabindex="2">restart</button>
           </div>
         </div>
-        <h1 id="lines-of-code-counter"></h1>
+        <div id="charDimensions"></div>
         <script nonce="${nonce}" src="${scriptUri}"></script>
       </body>
 			</html>`;

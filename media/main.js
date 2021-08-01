@@ -39,10 +39,12 @@
       // Message to change a single setting
       switch (message.config) {
         case "switchLanguage":
-          setLanguage(message.value);
-          setText();
-          vscode.setState({ ...previousState, language: message.value });
-          previousState = vscode.getState();
+          if (message.value) {
+            setLanguage(message.value);
+            setText();
+            vscode.setState({ ...previousState, language: message.value });
+            previousState = vscode.getState();
+          }
           break;
         case "switchCodeLanguage":
           setCodeLanguage(message.value);
@@ -51,6 +53,7 @@
           previousState = vscode.getState();
           break;
         case "switchTypingMode":
+          gameOver = true;
           setTypingMode(message.value);
           vscode.setState({ ...previousState, mode: message.value });
           previousState = vscode.getState();
@@ -76,7 +79,6 @@
   const textDisplay = document.querySelector("#text-display");
   const inputField = document.querySelector("#input-field");
 
-  const codeDisplay = document.querySelector("#code-display");
   const cursor = document.getElementById("cursor");
   const charDimensions = document.getElementById("charDimensions");
 
@@ -99,9 +101,8 @@
   let selectedLanguageCodes = [];
   let selectedLanguageName = "";
   let currentCode = "";
+  let gameOver = true;
   let codeStartDate = 0;
-  let codeTimerActive = false;
-  let codeTimer;
   let codeState = {
     firstChar: null,
     lastChar: null,
@@ -186,7 +187,6 @@
   //====================================================
   // Words mode
   //====================================================
-
   // Function to generate a new list of words
   function setText(e) {
     e = e || window.event;
@@ -553,7 +553,6 @@
   //====================================================
   // Code mode
   //====================================================
-
   function setCodeText(e) {
     e = e || window.event;
     var keepWordList = e && e.shiftKey;
@@ -567,6 +566,8 @@
     }
 
     // Reset progress state
+    clearTimeout(timer);
+    gameOver = false;
     codeState = {
       firstChar: null,
       lastChar: null,
@@ -576,12 +577,15 @@
       cursorTopOffset: 0,
       linesLastCursorPositions: [],
     };
+
     // Reset cursor position
+    cursor.classList.remove("hidden");
     updateCursorPosition(0, 0);
 
     // Show code snippet and focus into it
     showCodeText();
     document.getElementById("coding-area").focus();
+
     return;
   }
 
@@ -596,6 +600,19 @@
   }
 
   function showCodeResults() {
+    let numberOfCharacters = document.querySelectorAll(".char").length;
+    let numberOfCorrectTypings = document.querySelectorAll(".passed").length;
+
+    let time = (Date.now() - codeStartDate) / 1000 / 60;
+    let words = numberOfCorrectTypings / 5;
+
+    let wpm = Math.floor(words / time);
+    let acc = Math.floor((numberOfCorrectTypings / numberOfCharacters) * 100);
+
+    document.querySelector(
+      "#right-wing"
+    ).innerHTML = `WPM: ${wpm} / ACC: ${acc}`;
+
     return;
   }
 
@@ -614,12 +631,8 @@
     ) * 1.25;
 
   // Add event listeners for key presses
-  document
-    .getElementById("coding-area")
-    .addEventListener("keydown", (e) => handleKeyDown(e));
-  document
-    .getElementById("coding-area")
-    .addEventListener("keypress", (e) => handleKeyPress(e));
+  document.addEventListener("keydown", (e) => handleKeyDown(e));
+  document.addEventListener("keypress", (e) => handleKeyPress(e));
 
   // Function to set code language
   function setCodeLanguage(_lang) {
@@ -710,6 +723,15 @@
 
   // Function that handles "tab" and "backspace" key presses
   function handleKeyDown(e) {
+    if (gameOver) {
+      e.submit();
+    }
+
+    // If it's the first character, start timer
+    if (codeState.currentCharNum === 0) {
+      codeStartDate = Date.now();
+    }
+
     // Tab: move cursor further
     if (e.which === 9) {
       e.preventDefault();
@@ -811,6 +833,10 @@
 
   // Function that handles  all the other key presses
   function handleKeyPress(e) {
+    if (gameOver) {
+      e.submit();
+    }
+
     // Other keys: change state depending on the key pressed
     e.preventDefault();
 
@@ -832,6 +858,8 @@
 
     // Change classes of passed characters
     currentChar.classList.remove("topass");
+
+    // Change class depending if you typed correct or wrong
     if (typedSymbolCode === currentCharCode) {
       currentChar.classList.add("passed");
     } else {
@@ -840,10 +868,10 @@
 
     // If last symbol reached, hide cursor and show stats
     if (codeState.currentChar === codeState.lastChar) {
-      cursor.classList.add("hide");
-      document.getElementsByClassName("stats")[0].classList.remove("hide");
-      window.scrollTo(0, document.body.scrollHeight);
+      cursor.classList.add("hidden");
 
+      showCodeResults();
+      gameOver = true;
       return;
     }
 
