@@ -4989,8 +4989,11 @@
   },
   "codes": {
     "javascript": [
-      "javascript",
-      "const btn = document.getElementById('btn')\nlet count = 0\n\nfunction render() {\n  btn.innerText = `Count: ${count}`\n}\n\nbtn.addEventListener('click', () => {\n  // Count from 1 to 10.\n  if (count < 10) {\n    count += 1\n    render()\n  }\n})"
+      "const btn = document.getElementById('btn')\nlet count = 0\n\nfunction render() {\n  btn.innerText = `Count: ${count}`\n}\n\nbtn.addEventListener('click', () => {\n  // Count from 1 to 10.\n  if (count < 10) {\n    count += 1\n    render()\n  }\n})",
+      "// Simple way\nconst person = { name: \"Shoaib\", Age: 25, Gender: \"Male\" };\nfor (const property in person) {\n  console.log(`${property}: ${person[property]}`);\n}\n\n// Another way\nconst anotherPerson = {\n  Name: 'Shoaib',\n  Age: 25,\n  Gender:\"Male\"\n};\n\nfor (const [key, value] of Object.entries(anotherPerson)) {\n  console.log(`${key}: ${value}`);\n}",
+      "const students = [\n  {name: 'Shoaib', roll: 2},\n  {name: 'Mehedi', roll: 10},\n  {name: 'Alex', roll: 5}\n];\n\nfunction search(student) {\n  return student.name=== \"Mehedi\";\n}\n\nconsole.log(students.find(search));",
+      "const numbers = [1, 1, 20, 3, 3, 3, 9, 9];\nconst uniqueNumbers = [...new Set(numbers)];\n\nconsole.log(uniqueNumbers);",
+      "const files = [ 'foo.txt', '.bar', '', 'baz.foo' ];\nlet filePaths = [];\n\nfor (let file of files) {\n  const fileName = file.trim();\n  if(fileName) {\n    const filePath = `~/cool_app/${fileName}`;\n    filePaths.push(filePath);\n  }\n}"
     ],
     "html": [
       "yo\n\tlo",
@@ -5000,10 +5003,15 @@
       "css"
     ],
     "sql": [
-      "sql"
+      "CREATE TABLE Persons (    \nPersonID int,    \nLastName varchar(255),    \nFirstName varchar(255),    \nAddress varchar(255),    \nCity varchar(255)\n);"
     ],
     "python": [
-      "python"
+      "from os import path\n\ndef check_for_file():\n    print(\"Does file exist:\", path.exists(\"data.csv\"))\n\nif __name__==\"__main__\":\n    check_for_file()",
+      "dictionary1 = {\"name\": \"Joy\", \"age\": 25}\ndictionary2 = {\"name\": \"Joy\",\"city\": \"New York\"}\n\nmerged_dict = {**dictionary1, **dictionary2}\nprint(\"Merged dictionary:\", merged_dict)",
+      "from os import path\ndef check_for_file(): print(\"Does file exist:\", path.exists(\"data.csv\"))\n\nif __name__==\"__main__\":\n check_for_file()",
+      "my_list = ['banana', 'apple', 'orange', 'pineapple']\n\n#Using brute force method\nlast_element = my_list[len(my_list) - 1]\n\n#Using negative indeces\nlast_element = my_list[-1]\n\n#Using pop method\nlast_element = my_list.pop()",
+      "def get_vowels(string):\n          return [vowel for vowel in string if vowel in 'aeiou']\n\nprint(\"Vowels are:\", get_vowels('This is some random string'))",
+      "import time\n\nstart_time = time.time()\n\ntotal = 0\nfor i in range(10):\n  total += i\nprint(\"Sum:\", total)\n\nend_time = time.time()\ntime_taken = end_time - start_time\nprint(\"Time: \", time_taken)"
     ],
     "java": [
       "java"

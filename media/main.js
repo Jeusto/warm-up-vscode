@@ -37,6 +37,8 @@
       setTypingMode(message.mode);
       setPunctuation(message.punctuation);
       setColorBlindMode(message.colorBlindMode);
+    } else if (message.type === "practiceWithSelection") {
+      console.log(message.selectedCode);
     } else {
       // Message to change a single setting
       switch (message.config) {
@@ -170,6 +172,13 @@
   // Function to change typing mode
   function setTypingMode(_mode) {
     const mode = _mode.toLowerCase();
+
+    // Send message to extension to update setting
+    vscode.postMessage({
+      command: "switchTypingMode",
+      mode: mode,
+    });
+
     switch (mode) {
       case "words (fixed amount)":
         typingMode = mode;
@@ -625,9 +634,7 @@
 
   // Function to show the code snippet in the dom
   function showCodeText() {
-    document.getElementById("code-pre").innerHTML = DOMPurify.sanitize(
-      highlightCode(currentCode)
-    );
+    highlightCode(currentCode, previousState.codeLanguage);
 
     // Update state with the correct characters
     updateStateChars();
@@ -658,13 +665,13 @@
       getComputedStyle(charDimensions)
         .getPropertyValue("--vscode-editor-font-size")
         .replace("px", "")
-    ) * 0.5578;
+    ) * 0.601;
   let cursorHeight =
     parseInt(
       getComputedStyle(charDimensions)
         .getPropertyValue("--vscode-editor-font-size")
         .replace("px", "")
-    ) * 1.25;
+    ) * 1.49;
 
   // Add event listeners for key presses
   document.addEventListener("keydown", (e) => handleKeyDown(e));
@@ -691,9 +698,23 @@
     };
   }
 
-  // Function that returns code snippet highlighted and ready for rendering
-  function highlightCode(code) {
-    const highlightedCode = Prism.highlight(code, Prism.languages.javascript);
+  // Function that returns highlights code
+  function highlightCode(codeSnippet, language) {
+    codeDiv = document.getElementById("code-code");
+
+    document.getElementById("code-pre").className = "";
+    document.getElementById("code-code").className = "";
+
+    codeDiv.classList.add(`language-${language}`);
+    codeDiv.innerHTML = codeSnippet;
+
+    Prism.highlightElement(codeDiv);
+
+    codeDiv.innerHTML = cutCodeIntoPieces(codeDiv.innerHTML);
+  }
+
+  // Function that cuts highlighted code into spans of characters
+  function cutCodeIntoPieces(highlightedCode) {
     const regexpTag = /(<\/?span.*?>)/;
     const tagsAndTextArr = highlightedCode.split(regexpTag);
     const regexpSpecialChar = /&[a-z]*;/;
@@ -973,7 +994,7 @@
 
   // Function to visually flash the cursor
   function flashCursor() {
-    cursor.style.background = "#e05561";
+    cursor.style.background = "#e0556170";
     setTimeout(() => {
       cursor.style.background = "#5dbeff";
     }, 100);

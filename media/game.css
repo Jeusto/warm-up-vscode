@@ -51,6 +51,10 @@ body {
   color: #ffffff;
 }
 
+#text-display span {
+  font-size: var(--vscode-editor-font-size);
+}
+
 .bar {
   display: flex;
   justify-content: space-between;
@@ -178,20 +182,20 @@ body {
 }
 
 .char.notpassed {
-  background: #e05561;
+  background: #e0556170;
 }
 
 #charDimensions {
-  height: calc(var(--vscode-editor-font-size) * 1.25);
-  width: calc(var(--vscode-editor-font-size) * 0.5578);
+  height: (--vscode-editor-font-size);
+  width: (--vscode-editor-font-size);
 }
 
 #cursor {
   display: inline-block;
   position: absolute;
   background: #5dbeff;
-  height: calc(var(--vscode-editor-font-size) * 1.25);
-  width: calc(var(--vscode-editor-font-size) * 0.13);
+  height: calc(var(--vscode-editor-font-size) * 1.55);
+  width: calc(var(--vscode-editor-font-size) * 0.125);
   opacity: 1;
   top: 0;
   animation: cursor 0.85s infinite ease-in;
@@ -204,4 +208,18 @@ body {
   100% {
     opacity: 0;
   }
+}
+
+#text-display > span {
+  display: inline-block;
+  margin: calc(var(--vscode-editor-font-size) * 0.3)
+    calc(var(--vscode-editor-font-size) * 0.3);
+}
+
+#code-pre,
+#code-code {
+  border: none;
+  outline: none;
+  margin: 0;
+  padding: 0;
 }

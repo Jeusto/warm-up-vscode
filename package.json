@@ -75,7 +75,7 @@
 							"html",
 							"css",
 							"sql",
-							"pyton",
+							"python",
 							"java",
 							"c#",
 							"typescript",
@@ -190,6 +190,19 @@
 				"command": "warmUp.toggleColorBlindMode",
 				"title": "Toggle color blind mode",
 				"category": "Warm Up"
+			},
+			{
+				"command": "warmUp.practiceWithSelection",
+				"title": "Practice typing with selected code",
+				"category": "Warm Up"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "warmUp.practiceWithSelection",
+				"key": "ctrl+alt+p",
+				"mac": "cmd+alt+p",
+				"when": "editorHasSelection"
 			}
 		]
 	},

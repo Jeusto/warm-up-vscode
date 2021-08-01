@@ -109,7 +109,7 @@ export function activate(context: ExtensionContext) {
             "html",
             "css",
             "sql",
-            "pyton",
+            "python",
             "java",
             "c#",
             "typescript",
@@ -254,6 +254,7 @@ export function activate(context: ExtensionContext) {
       }
     )
   );
+
   // Register toggleColorBlind command
   context.subscriptions.push(
     commands.registerCommand(
@@ -292,6 +293,32 @@ export function activate(context: ExtensionContext) {
         }
       }
     )
+  );
+
+  // Register practiceWithSelection command
+  context.subscriptions.push(
+    commands.registerCommand("warmUp.practiceWithSelection", () => {
+      const editor = window.activeTextEditor;
+      if (!editor) {
+        // No open text editor, return
+        return;
+      }
+
+      const selections = editor.selections;
+      const firstSelection = editor.document.getText(selections[0]);
+
+      // No selection, return
+      if (firstSelection.length == 0) {
+        return;
+      }
+
+      // Create or show webview
+      WarmUpPanel.createOrShow(context.extensionUri);
+      // Send all user settings with message
+      if (WarmUpPanel.currentPanel) {
+        WarmUpPanel.currentPanel.sendPracticeWithSelection(firstSelection);
+      }
+    })
   );
 
   // Register webview panel serializer

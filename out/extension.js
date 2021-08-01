@@ -68,7 +68,7 @@ function activate(context) {
             "html",
             "css",
             "sql",
-            "pyton",
+            "python",
             "java",
             "c#",
             "typescript",
@@ -171,6 +171,26 @@ function activate(context) {
         // Send message to webview if it exists
         if (webviewPanel_1.default.currentPanel) {
             webviewPanel_1.default.currentPanel.sendConfigMessage("toggleColorBlindMode", userChoice);
+        }
+    }));
+    // Register practiceWithSelection command
+    context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.practiceWithSelection", () => {
+        const editor = vscode_1.window.activeTextEditor;
+        if (!editor) {
+            // No open text editor, return
+            return;
+        }
+        const selections = editor.selections;
+        const firstSelection = editor.document.getText(selections[0]);
+        // No selection, return
+        if (firstSelection.length == 0) {
+            return;
+        }
+        // Create or show webview
+        webviewPanel_1.default.createOrShow(context.extensionUri);
+        // Send all user settings with message
+        if (webviewPanel_1.default.currentPanel) {
+            webviewPanel_1.default.currentPanel.sendPracticeWithSelection(firstSelection);
         }
     }));
     // Register webview panel serializer

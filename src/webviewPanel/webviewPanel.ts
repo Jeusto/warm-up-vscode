@@ -35,7 +35,7 @@ export default class WarmUpPanel {
       async (message) => {
         switch (message.command) {
           case "changeCount":
-            // Update the configuration value with user choice
+            // Update count value with user choice
             await workspace
               .getConfiguration()
               .update(
@@ -43,6 +43,17 @@ export default class WarmUpPanel {
                 message.count.toString(),
                 ConfigurationTarget.Global
               );
+            break;
+          case "switchTypingMode":
+            // Update typing mode value with user choice
+            await workspace
+              .getConfiguration()
+              .update(
+                "warmUp.switchTypingMode",
+                message.mode,
+                ConfigurationTarget.Global
+              );
+            break;
         }
       },
       null,
@@ -109,6 +120,14 @@ export default class WarmUpPanel {
     });
   }
 
+  // Function to send a message to the webview to practice with selection
+  public sendPracticeWithSelection(selection: string) {
+    this._panel.webview.postMessage({
+      type: "practiceWithSelection",
+      selectedCode: selection,
+    });
+  }
+
   // Function to send a message to the webview that contains one setting
   public sendConfigMessage(config: string, value: any) {
     this._panel.webview.postMessage({
@@ -148,6 +167,9 @@ export default class WarmUpPanel {
   // Function that returns the html for the webview
   private getHtmlForWebview(webview: Webview) {
     // Uri we use to load this script in the webview
+    const prismScriptUri = webview.asWebviewUri(
+      Uri.joinPath(this._extensionUri, "media", "prism.js")
+    );
     const scriptUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "main.js")
     );
@@ -173,6 +195,7 @@ export default class WarmUpPanel {
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 				<!--
 					Use a content security policy to only allow loading images from https or from our extension directory,
@@ -180,20 +203,6 @@ export default class WarmUpPanel {
 				-->
 				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} https:; img-src ${webview.cspSource} https:; script-src ${webview.cspSource} https:;">
 
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-        <script
-          src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.0/purify.min.js"
-          integrity="sha512-FJzrdtFBVzaaehq9mzbhljqwJ7+jE0GyTa8UBxZdMsMUjflR25f5lJSGD0lmQPHnhQfnctG0B1TNQsObwyJUzA=="
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer"
-        ></script>
-        <script
-          src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"
-          integrity="sha512-axJX7DJduStuBB8ePC8ryGzacZPr3rdLaIDZitiEgWWk2gsXxEFlm4UW0iNzj2h3wp5mOylgHAzBzM4nRSvTZA=="
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer"
-        ></script>
 				<link href="${styleVSCodeUri}" rel="stylesheet">
 				<link href="${styleGameUri}" rel="stylesheet">
 				<link href="${stylePrismUri}" rel="stylesheet">
@@ -248,14 +257,22 @@ export default class WarmUpPanel {
           <div id="coding-area" tabindex="-1" style="display: inline;">
             <div class="code-display">
               <div class="code">
-                <pre id="code-pre"></pre>
+                <pre id="code-pre"><code id="code-code"></code></pre>
                 <span id="cursor" style="left: 0px; top: 0px" class="cursor"></span>
               </div>
             </div>
             <button id="restart-button" class=" codeButton" tabindex="2">restart</button>
           </div>
         </div>
+
         <div id="charDimensions"></div>
+        <script
+          src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.0/purify.min.js"
+          integrity="sha512-FJzrdtFBVzaaehq9mzbhljqwJ7+jE0GyTa8UBxZdMsMUjflR25f5lJSGD0lmQPHnhQfnctG0B1TNQsObwyJUzA=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+        ></script>
+        <script nonce="${nonce}" src="${prismScriptUri}" data-manual></script>
         <script nonce="${nonce}" src="${scriptUri}"></script>
       </body>
 			</html>`;

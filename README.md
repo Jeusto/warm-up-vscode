@@ -40,3 +40,4 @@ Feel free to give any feedback, report an issue or contribute. The main function
 
 - Typings: Original website forked to make this extension.
 - Flaticon: Svgs used to make the extension icon.
+- Adrigm: Prismjs one dark theme
