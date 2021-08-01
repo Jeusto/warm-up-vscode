@@ -305,12 +305,14 @@ export function activate(context: ExtensionContext) {
       }
 
       const selections = editor.selections;
-      const firstSelection = editor.document.getText(selections[0]);
+      let firstSelection = editor.document.getText(selections[0]);
 
       // No selection, return
       if (firstSelection.length == 0) {
         return;
       }
+
+      firstSelection = firstSelection.substring(0, 2000);
 
       // Create or show webview
       WarmUpPanel.createOrShow(context.extensionUri);

@@ -223,3 +223,7 @@ body {
   margin: 0;
   padding: 0;
 }
+
+#coding-area {
+  padding-bottom: calc(var(--vscode-editor-font-size) * 3);
+}

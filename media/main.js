@@ -12,7 +12,7 @@
   window.addEventListener("message", (event) => {
     const message = event.data;
 
-    // Message sent when the extension starts
+    // Message sent when the extension activates and sends settings
     if (message.type === "allConfig") {
       // Put words list and settings into a state
       vscode.setState({
@@ -35,10 +35,14 @@
       setWordCount(message.count);
       setTimeCount(message.count);
       setTypingMode(message.mode);
-      setPunctuation(message.punctuation);
       setColorBlindMode(message.colorBlindMode);
+      setPunctuation(message.punctuation);
+      setText();
+      showText();
     } else if (message.type === "practiceWithSelection") {
+      currentCode = message.selectedCode;
       console.log(message.selectedCode);
+      setSelectionCodeText(currentCode);
     } else {
       // Message to change a single setting
       switch (message.config) {
@@ -54,9 +58,10 @@
               });
               previousState = vscode.getState();
             } else {
-              setText();
               vscode.setState({ ...previousState, language: message.value });
               previousState = vscode.getState();
+              setText();
+              showText();
             }
           }
           break;
@@ -78,6 +83,8 @@
           break;
         case "togglePunctuation":
           setPunctuation(message.value);
+          setText();
+          showText();
           vscode.setState({ ...previousState, punctuation: message.value });
           previousState = vscode.getState();
           break;
@@ -148,11 +155,14 @@
     setTypingMode(previousState.mode);
     setColorBlindMode(previousState.mode);
     setPunctuation(previousState.punctuation);
+    setText();
+    showText();
   }
 
   // Restart if restart button hit
   document.querySelector("#restart-button").addEventListener("click", (e) => {
     setText(e);
+    showText();
   });
   document.querySelector(".codeButton").addEventListener("click", (e) => {
     setCodeText(e);
@@ -165,6 +175,7 @@
         setCodeText(e);
       } else {
         setText(e);
+        showText();
       }
     }
   });
@@ -188,6 +199,8 @@
         document.querySelector("#typing-area").style.display = "inline";
         document.querySelector("#word-count").style.display = "inline";
         setText();
+        showText();
+
         break;
 
       case "words (against the clock)":
@@ -198,6 +211,8 @@
         document.querySelector("#typing-area").style.display = "inline";
         document.querySelector("#time-count").style.display = "inline";
         setText();
+        showText();
+
         break;
 
       case "code snippets":
@@ -287,7 +302,6 @@
     }
 
     if (punctuation) addPunctuations();
-    showText();
 
     inputField.focus();
   }
@@ -531,7 +545,6 @@
           }
         }
       }
-
       currentWordsList[currentWordsList.length - 1] += ".";
     }
   }
@@ -546,10 +559,8 @@
     const punc = punct.toLowerCase();
     if (punc === "true") {
       punctuation = true;
-      setText();
     } else if (punc === "false") {
       punctuation = false;
-      setText();
     }
   }
 
@@ -561,6 +572,7 @@
       .forEach((e) => (e.style.borderBottom = ""));
     document.querySelector(`#wc-${wordCount}`).style.borderBottom = "2px solid";
     setText();
+    showText();
 
     // Change state
     vscode.setState({ ...previousState, count: wordCount });
@@ -581,6 +593,7 @@
     });
     document.querySelector(`#tc-${timeCount}`).style.borderBottom = "2px solid";
     setText();
+    showText();
 
     // Change state
     vscode.setState({ ...previousState, count: timeCount });
@@ -607,6 +620,33 @@
           Math.floor(Math.random() * selectedLanguageCodes.length)
         ];
     }
+
+    // Reset progress state
+    clearTimeout(timer);
+    gameOver = false;
+    codeState = {
+      firstChar: null,
+      lastChar: null,
+      currentChar: null,
+      currentCharNum: 0,
+      cursorLeftOffset: 0,
+      cursorTopOffset: 0,
+      linesLastCursorPositions: [],
+    };
+
+    // Reset cursor position
+    cursor.classList.remove("hidden");
+    updateCursorPosition(0, 0);
+
+    // Show code snippet and focus into it
+    showCodeText();
+    document.getElementById("coding-area").focus();
+
+    return;
+  }
+  // Function to set selection as new code snippet and reset states
+  function setSelectionCodeText(selection) {
+    currentCode = selection;
 
     // Reset progress state
     clearTimeout(timer);
