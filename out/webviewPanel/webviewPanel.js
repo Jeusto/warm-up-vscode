@@ -55,8 +55,8 @@ class WarmUpPanel {
     static revive(panel, extensionUri) {
         WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
     }
-    // Function to send a message to the webview that contains all settings
-    sendAllConfigMessage(words, codes) {
+    // Function send all config and start webview
+    sendStartAndConfig(words, codes) {
         this._panel.webview.postMessage({
             type: "allConfig",
             words: words,
@@ -75,14 +75,28 @@ class WarmUpPanel {
                 .get("warmUp.toggleColorBlindMode"),
         });
     }
-    // Function to send a message to the webview to practice with selection
-    sendPracticeWithSelection(selection) {
+    // Function to send all config and start webview with selected code
+    sendStartWithSelectionAndConfig(selectedCode, fileLanguage, words, codes) {
         this._panel.webview.postMessage({
             type: "practiceWithSelection",
-            selectedCode: selection,
+            selectedCode,
+            words: words,
+            codes: codes,
+            language: vscode_1.workspace
+                .getConfiguration()
+                .get("warmUp.switchNaturalLanguage"),
+            codeLanguage: vscode_1.workspace
+                .getConfiguration()
+                .get("warmUp.switchProgrammingLanguage"),
+            mode: "code snippets",
+            count: vscode_1.workspace.getConfiguration().get("warmUp.changeCount"),
+            punctuation: vscode_1.workspace.getConfiguration().get("warmUp.togglePunctuation"),
+            colorBlindMode: vscode_1.workspace
+                .getConfiguration()
+                .get("warmUp.toggleColorBlindMode"),
         });
     }
-    // Function to send a message to the webview that contains one setting
+    // Function to send a single config to webview
     sendConfigMessage(config, value) {
         this._panel.webview.postMessage({
             type: "singleConfig",

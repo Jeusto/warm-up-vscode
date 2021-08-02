@@ -40,14 +40,54 @@ export function activate(context: ExtensionContext) {
   // Display status bar icon
   myStatusBarItem.show();
 
-  // Register start command and do stuff
+  // Register start command
   context.subscriptions.push(
     commands.registerCommand("warmUp.start", () => {
       // Create or show webview
       WarmUpPanel.createOrShow(context.extensionUri);
-      // Send all user settings with message
+
+      // Send all user settings to webview to start
       if (WarmUpPanel.currentPanel) {
-        WarmUpPanel.currentPanel.sendAllConfigMessage(words, codes);
+        WarmUpPanel.currentPanel.sendStartAndConfig(words, codes);
+      }
+    })
+  );
+
+  // Register practiceWithSelection command
+  context.subscriptions.push(
+    commands.registerCommand("warmUp.practiceWithSelection", () => {
+      // Return if no editor open
+      const editor = window.activeTextEditor;
+      if (!editor) {
+        return;
+      }
+
+      // Get selection
+      const selections = editor.selections;
+      let firstSelection = editor.document.getText(selections[0]);
+
+      // Return if no selection
+      if (firstSelection.length == 0) {
+        return;
+      }
+
+      // Limit selection size
+      firstSelection = firstSelection.substring(0, 2000);
+
+      // Get editor file language
+      const fileLanguage = editor.document.fileName.split(".").pop();
+
+      // Create or show webview
+      WarmUpPanel.createOrShow(context.extensionUri);
+
+      // Send all user settings to webview to start with selection
+      if (WarmUpPanel.currentPanel) {
+        WarmUpPanel.currentPanel.sendStartWithSelectionAndConfig(
+          firstSelection,
+          fileLanguage,
+          words,
+          codes
+        );
       }
     })
   );
@@ -87,7 +127,7 @@ export function activate(context: ExtensionContext) {
             ConfigurationTarget.Global
           );
 
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (WarmUpPanel.currentPanel) {
           WarmUpPanel.currentPanel.sendConfigMessage(
             "switchNaturalLanguage",
@@ -106,9 +146,6 @@ export function activate(context: ExtensionContext) {
         const userChoice = await window.showQuickPick(
           [
             "javascript",
-            "html",
-            "css",
-            "sql",
             "python",
             "java",
             "c#",
@@ -116,6 +153,8 @@ export function activate(context: ExtensionContext) {
             "c++",
             "c",
             "go",
+            "kotlin",
+            "ruby",
             "rust",
           ],
           {
@@ -132,7 +171,7 @@ export function activate(context: ExtensionContext) {
             ConfigurationTarget.Global
           );
 
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (WarmUpPanel.currentPanel) {
           WarmUpPanel.currentPanel.sendConfigMessage(
             "switchProgrammingLanguage",
@@ -177,7 +216,7 @@ export function activate(context: ExtensionContext) {
             ConfigurationTarget.Global
           );
 
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (WarmUpPanel.currentPanel) {
           WarmUpPanel.currentPanel.sendConfigMessage(
             "switchTypingMode",
@@ -217,7 +256,7 @@ export function activate(context: ExtensionContext) {
             ConfigurationTarget.Global
           );
 
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (WarmUpPanel.currentPanel) {
           WarmUpPanel.currentPanel.sendConfigMessage(
             "togglePunctuation",
@@ -247,7 +286,7 @@ export function activate(context: ExtensionContext) {
           .getConfiguration()
           .update("warmUp.changeCount", userChoice, ConfigurationTarget.Global);
 
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (WarmUpPanel.currentPanel) {
           WarmUpPanel.currentPanel.sendConfigMessage("changeCount", userChoice);
         }
@@ -284,7 +323,7 @@ export function activate(context: ExtensionContext) {
             ConfigurationTarget.Global
           );
 
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (WarmUpPanel.currentPanel) {
           WarmUpPanel.currentPanel.sendConfigMessage(
             "toggleColorBlindMode",
@@ -293,34 +332,6 @@ export function activate(context: ExtensionContext) {
         }
       }
     )
-  );
-
-  // Register practiceWithSelection command
-  context.subscriptions.push(
-    commands.registerCommand("warmUp.practiceWithSelection", () => {
-      const editor = window.activeTextEditor;
-      if (!editor) {
-        // No open text editor, return
-        return;
-      }
-
-      const selections = editor.selections;
-      let firstSelection = editor.document.getText(selections[0]);
-
-      // No selection, return
-      if (firstSelection.length == 0) {
-        return;
-      }
-
-      firstSelection = firstSelection.substring(0, 2000);
-
-      // Create or show webview
-      WarmUpPanel.createOrShow(context.extensionUri);
-      // Send all user settings with message
-      if (WarmUpPanel.currentPanel) {
-        WarmUpPanel.currentPanel.sendPracticeWithSelection(firstSelection);
-      }
-    })
   );
 
   // Register webview panel serializer

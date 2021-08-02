@@ -72,9 +72,6 @@
 						"type": "string",
 						"enum": [
 							"javascript",
-							"html",
-							"css",
-							"sql",
 							"python",
 							"java",
 							"c#",
@@ -82,6 +79,8 @@
 							"c++",
 							"c",
 							"go",
+							"kotlin",
+							"ruby",
 							"rust"
 						],
 						"default": "javascript",
@@ -193,7 +192,7 @@
 			},
 			{
 				"command": "warmUp.practiceWithSelection",
-				"title": "Practice typing with selected code",
+				"title": "Practice with selected code snippet",
 				"category": "Warm Up"
 			}
 		],

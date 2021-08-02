@@ -24,13 +24,38 @@ function activate(context) {
     context.subscriptions.push(myStatusBarItem);
     // Display status bar icon
     myStatusBarItem.show();
-    // Register start command and do stuff
+    // Register start command
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.start", () => {
         // Create or show webview
         webviewPanel_1.default.createOrShow(context.extensionUri);
-        // Send all user settings with message
+        // Send all user settings to webview to start
         if (webviewPanel_1.default.currentPanel) {
-            webviewPanel_1.default.currentPanel.sendAllConfigMessage(words, codes);
+            webviewPanel_1.default.currentPanel.sendStartAndConfig(words, codes);
+        }
+    }));
+    // Register practiceWithSelection command
+    context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.practiceWithSelection", () => {
+        // Return if no editor open
+        const editor = vscode_1.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+        // Get selection
+        const selections = editor.selections;
+        let firstSelection = editor.document.getText(selections[0]);
+        // Return if no selection
+        if (firstSelection.length == 0) {
+            return;
+        }
+        // Limit selection size
+        firstSelection = firstSelection.substring(0, 2000);
+        // Get editor file language
+        const fileLanguage = editor.document.fileName.split(".").pop();
+        // Create or show webview
+        webviewPanel_1.default.createOrShow(context.extensionUri);
+        // Send all user settings to webview to start with selection
+        if (webviewPanel_1.default.currentPanel) {
+            webviewPanel_1.default.currentPanel.sendStartWithSelectionAndConfig(firstSelection, fileLanguage, words, codes);
         }
     }));
     // Register switchNaturalLanguage command
@@ -56,7 +81,7 @@ function activate(context) {
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.switchNaturalLanguage", userChoice, vscode_1.ConfigurationTarget.Global);
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (webviewPanel_1.default.currentPanel) {
             webviewPanel_1.default.currentPanel.sendConfigMessage("switchNaturalLanguage", userChoice);
         }
@@ -65,9 +90,6 @@ function activate(context) {
     context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.switchProgrammingLanguage", async function showQuickPick() {
         const userChoice = await vscode_1.window.showQuickPick([
             "javascript",
-            "html",
-            "css",
-            "sql",
             "python",
             "java",
             "c#",
@@ -75,6 +97,8 @@ function activate(context) {
             "c++",
             "c",
             "go",
+            "kotlin",
+            "ruby",
             "rust",
         ], {
             placeHolder: "Choose a programming language to practice with.",
@@ -83,7 +107,7 @@ function activate(context) {
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.switchProgrammingLanguage", userChoice, vscode_1.ConfigurationTarget.Global);
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (webviewPanel_1.default.currentPanel) {
             webviewPanel_1.default.currentPanel.sendConfigMessage("switchProgrammingLanguage", userChoice);
         }
@@ -111,7 +135,7 @@ function activate(context) {
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.switchTypingMode", userChoice, vscode_1.ConfigurationTarget.Global);
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (webviewPanel_1.default.currentPanel) {
             webviewPanel_1.default.currentPanel.sendConfigMessage("switchTypingMode", userChoice);
         }
@@ -132,7 +156,7 @@ function activate(context) {
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.togglePunctuation", userChoice, vscode_1.ConfigurationTarget.Global);
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (webviewPanel_1.default.currentPanel) {
             webviewPanel_1.default.currentPanel.sendConfigMessage("togglePunctuation", userChoice);
         }
@@ -147,7 +171,7 @@ function activate(context) {
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.changeCount", userChoice, vscode_1.ConfigurationTarget.Global);
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (webviewPanel_1.default.currentPanel) {
             webviewPanel_1.default.currentPanel.sendConfigMessage("changeCount", userChoice);
         }
@@ -168,30 +192,9 @@ function activate(context) {
         await vscode_1.workspace
             .getConfiguration()
             .update("warmUp.toggleColorBlindMode", userChoice, vscode_1.ConfigurationTarget.Global);
-        // Send message to webview if it exists
+        // Send configuration change to webview if it exists
         if (webviewPanel_1.default.currentPanel) {
             webviewPanel_1.default.currentPanel.sendConfigMessage("toggleColorBlindMode", userChoice);
-        }
-    }));
-    // Register practiceWithSelection command
-    context.subscriptions.push(vscode_1.commands.registerCommand("warmUp.practiceWithSelection", () => {
-        const editor = vscode_1.window.activeTextEditor;
-        if (!editor) {
-            // No open text editor, return
-            return;
-        }
-        const selections = editor.selections;
-        let firstSelection = editor.document.getText(selections[0]);
-        // No selection, return
-        if (firstSelection.length == 0) {
-            return;
-        }
-        firstSelection = firstSelection.substring(0, 2000);
-        // Create or show webview
-        webviewPanel_1.default.createOrShow(context.extensionUri);
-        // Send all user settings with message
-        if (webviewPanel_1.default.currentPanel) {
-            webviewPanel_1.default.currentPanel.sendPracticeWithSelection(firstSelection);
         }
     }));
     // Register webview panel serializer

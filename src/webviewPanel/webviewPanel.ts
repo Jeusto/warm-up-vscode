@@ -96,8 +96,8 @@ export default class WarmUpPanel {
     WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
   }
 
-  // Function to send a message to the webview that contains all settings
-  public sendAllConfigMessage(
+  // Function send all config and start webview
+  public sendStartAndConfig(
     words: Record<string, string[]>,
     codes: Record<string, string[]>
   ) {
@@ -120,15 +120,34 @@ export default class WarmUpPanel {
     });
   }
 
-  // Function to send a message to the webview to practice with selection
-  public sendPracticeWithSelection(selection: string) {
+  // Function to send all config and start webview with selected code
+  public sendStartWithSelectionAndConfig(
+    selectedCode: string,
+    fileLanguage: string,
+    words: string[],
+    codes: string[]
+  ) {
     this._panel.webview.postMessage({
       type: "practiceWithSelection",
-      selectedCode: selection,
+      selectedCode,
+      words: words,
+      codes: codes,
+      language: workspace
+        .getConfiguration()
+        .get("warmUp.switchNaturalLanguage"),
+      codeLanguage: workspace
+        .getConfiguration()
+        .get("warmUp.switchProgrammingLanguage"),
+      mode: "code snippets",
+      count: workspace.getConfiguration().get("warmUp.changeCount"),
+      punctuation: workspace.getConfiguration().get("warmUp.togglePunctuation"),
+      colorBlindMode: workspace
+        .getConfiguration()
+        .get("warmUp.toggleColorBlindMode"),
     });
   }
 
-  // Function to send a message to the webview that contains one setting
+  // Function to send a single config to webview
   public sendConfigMessage(config: string, value: any) {
     this._panel.webview.postMessage({
       type: "singleConfig",

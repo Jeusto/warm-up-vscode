@@ -25,7 +25,7 @@
         punctuation: message.punctuation,
         colorBlindMode: message.colorBlindMode,
       });
-      previousState = vscode.getState();
+      extensionState = vscode.getState();
 
       // Change words list and settings
       allWords = message.words;
@@ -37,68 +37,132 @@
       setTypingMode(message.mode);
       setColorBlindMode(message.colorBlindMode);
       setPunctuation(message.punctuation);
-      setText();
-      showText();
+
+      // Start typing test
+      if (extensionState.mode === "code snippets") {
+        setCodeText();
+        showCodeText();
+      } else {
+        setText();
+        showText();
+      }
     } else if (message.type === "practiceWithSelection") {
-      currentCode = message.selectedCode;
-      console.log(message.selectedCode);
-      setSelectionCodeText(currentCode);
+      // Put words list and settings into a state
+      vscode.setState({
+        allWords: message.words,
+        allCodes: message.codes,
+        language: message.language,
+        codeLanguage: message.codeLanguage,
+        count: message.count,
+        mode: message.mode,
+        punctuation: message.punctuation,
+        colorBlindMode: message.colorBlindMode,
+      });
+      extensionState = vscode.getState();
+
+      // Change words list and settings
+      allWords = message.words;
+      allCodes = message.codes;
+      setLanguage(message.language);
+      setCodeLanguage(message.codeLanguage);
+      setWordCount(message.count);
+      setTimeCount(message.count);
+      setTypingMode(message.mode);
+      setColorBlindMode(message.colorBlindMode);
+      setPunctuation(message.punctuation);
+
+      // Start typing test
+      setSelectedCodeText(message.selectedCode);
+      showCodeText();
     } else {
       // Message to change a single setting
       switch (message.config) {
         case "switchNaturalLanguage":
           if (message.value) {
             setLanguage(message.value);
-            if (previousState.mode === "code snippets") {
-              setTypingMode("words (fixed amount)");
-              vscode.setState({
-                ...previousState,
-                mode: "words (fixed amount)",
-                language: message.value,
-              });
-              previousState = vscode.getState();
-            } else {
-              vscode.setState({ ...previousState, language: message.value });
-              previousState = vscode.getState();
+
+            vscode.setState({ ...extensionState, language: message.value });
+            extensionState = vscode.getState();
+
+            if (extensionState.mode !== "code snippets") {
               setText();
               showText();
             }
           }
           break;
+
         case "switchProgrammingLanguage":
-          setCodeLanguage(message.value);
-          setTypingMode("code snippets");
-          vscode.setState({
-            ...previousState,
-            mode: "code snippets",
-            codeLanguage: message.value,
-          });
-          previousState = vscode.getState();
+          if (message.value) {
+            setCodeLanguage(message.value);
+
+            vscode.setState({
+              ...extensionState,
+              codeLanguage: message.value,
+            });
+            extensionState = vscode.getState();
+
+            if (extensionState.mode === "code snippets") {
+              setCodeText();
+              showCodeText();
+            }
+          }
           break;
+
         case "switchTypingMode":
-          gameOver = true;
-          setTypingMode(message.value);
-          vscode.setState({ ...previousState, mode: message.value });
-          previousState = vscode.getState();
+          if (message.value) {
+            gameOver = true;
+            setTypingMode(message.value);
+
+            vscode.setState({
+              ...extensionState,
+              mode: message.value,
+            });
+            extensionState = vscode.getState();
+          }
           break;
+
         case "togglePunctuation":
-          setPunctuation(message.value);
-          setText();
-          showText();
-          vscode.setState({ ...previousState, punctuation: message.value });
-          previousState = vscode.getState();
+          if (message.value) {
+            setPunctuation(message.value);
+
+            vscode.setState({
+              ...extensionState,
+              punctuation: message.value,
+            });
+            extensionState = vscode.getState();
+
+            if (extensionState.mode !== "code snippets") {
+              setText();
+              showText();
+            }
+          }
           break;
+
         case "toggleColorBlindMode":
           setColorBlindMode(message.value);
-          vscode.setState({ ...previousState, colorBlindMode: message.value });
-          previousState = vscode.getState();
+
+          vscode.setState({ ...extensionState, colorBlindMode: message.value });
+          extensionState = vscode.getState();
           break;
+
         case "changeCount":
-          setWordCount(message.value);
-          setTimeCount(message.value);
-          vscode.setState({ ...previousState, count: message.value });
-          previousState = vscode.getState();
+          if (message.value) {
+            setWordCount(message.value);
+            setTimeCount(message.value);
+
+            vscode.setState({
+              ...extensionState,
+              count: message.value,
+            });
+            extensionState = vscode.getState();
+
+            if (extensionState.mode !== "code snippets") {
+              setText();
+              showText();
+            }
+          }
           break;
+
         default:
           break;
       }
@@ -115,7 +179,6 @@
   // Initialize dynamic variables
   let typingMode = "words (fixed amount)";
 
-  let allWords = [];
   let selectedLanguageWords = [];
   let currentWordsList = [];
   let currentWord = 0;
@@ -144,17 +207,15 @@
   };
 
   // Get all words and settings from the state if it exists
-  let previousState = vscode.getState();
-  if (previousState) {
-    allWords = previousState.allWords;
-    allCodes = previousState.allCodes;
-    setLanguage(previousState.language);
-    setCodeLanguage(previousState.codeLanguage);
-    setWordCount(previousState.count);
-    setTimeCount(previousState.count);
-    setTypingMode(previousState.mode);
-    setColorBlindMode(previousState.mode);
-    setPunctuation(previousState.punctuation);
+  let extensionState = vscode.getState();
+  if (extensionState) {
+    setLanguage(extensionState.language);
+    setCodeLanguage(extensionState.codeLanguage);
+    setWordCount(extensionState.count);
+    setTimeCount(extensionState.count);
+    setTypingMode(extensionState.mode);
+    setColorBlindMode(extensionState.mode);
+    setPunctuation(extensionState.punctuation);
     setText();
     showText();
   }
@@ -166,12 +227,13 @@
   });
   document.querySelector(".codeButton").addEventListener("click", (e) => {
     setCodeText(e);
+    showCodeText();
   });
 
   // Restart if escape key hit
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      if (typingMode === "code snippets") {
+      if (extensionState.mode === "code snippets") {
         setCodeText(e);
       } else {
         setText(e);
@@ -192,41 +254,49 @@
 
     switch (mode) {
       case "words (fixed amount)":
-        typingMode = mode;
+        // Update ui
         document.querySelector("#coding-area").style.display = "none";
         document.querySelector("#time-count").style.display = "none";
         document.querySelector("#language-selected").style.display = "none";
         document.querySelector("#typing-area").style.display = "inline";
         document.querySelector("#word-count").style.display = "inline";
+
+        // Start typing test
         setText();
         showText();
 
         break;
 
       case "words (against the clock)":
-        typingMode = mode;
+        // Update ui
         document.querySelector("#coding-area").style.display = "none";
         document.querySelector("#word-count").style.display = "none";
         document.querySelector("#language-selected").style.display = "none";
         document.querySelector("#typing-area").style.display = "inline";
         document.querySelector("#time-count").style.display = "inline";
+
+        // Start typing test
         setText();
         showText();
 
         break;
 
       case "code snippets":
-        typingMode = mode;
+        // Update ui
         document.querySelector("#typing-area").style.display = "none";
         document.querySelector("#word-count").style.display = "none";
         document.querySelector("#time-count").style.display = "none";
         document.querySelector("#coding-area").style.display = "inline";
         document.querySelector("#language-selected").style.display = "inline";
+
+        // Start typing test
         setCodeText();
+        showCodeText();
+
         break;
 
       default:
-        console.error(`mode ${mode} is undefine`);
+        console.error(`Mode ${mode} is undefined`);
     }
   }
 
@@ -261,7 +331,7 @@
     textDisplay.style.display = "block";
     inputField.className = "";
 
-    switch (typingMode) {
+    switch (extensionState.mode) {
       case "words (fixed amount)":
         textDisplay.style.height = "auto";
 
@@ -321,7 +391,7 @@
   // Function to calculate and display result
   function showResult() {
     let words, minute, acc;
-    switch (typingMode) {
+    switch (extensionState.mode) {
       case "words (fixed amount)":
         words = correctKeys / 5;
         minute = (Date.now() - startDate) / 1000 / 60;
@@ -353,7 +423,7 @@
   // Key is pressed in input field (game logic)
   inputField.addEventListener("keydown", (e) => {
     // Add wrong class to input field
-    switch (typingMode) {
+    switch (extensionState.mode) {
       case "words (fixed amount)":
         if (currentWord < currentWordsList.length) inputFieldClass();
       case "words (against the clock)":
@@ -395,7 +465,7 @@
 
     // If it is the first character entered
     if (currentWord === 0 && inputField.value === "") {
-      switch (typingMode) {
+      switch (extensionState.mode) {
         case "words (fixed amount)":
           startDate = Date.now();
           break;
@@ -479,33 +549,53 @@
   // Command center actions
   document.querySelector("#wc-15")?.addEventListener("click", () => {
     setWordCount(15);
+    setText();
+    showText();
   });
   document.querySelector("#wc-30")?.addEventListener("click", () => {
     setWordCount(30);
+    setText();
+    showText();
   });
   document.querySelector("#wc-60")?.addEventListener("click", () => {
     setWordCount(60);
+    setText();
+    showText();
   });
   document.querySelector("#wc-120")?.addEventListener("click", () => {
     setWordCount(120);
+    setText();
+    showText();
   });
   document.querySelector("#wc-240")?.addEventListener("click", () => {
     setWordCount(240);
+    setText();
+    showText();
   });
   document.querySelector("#tc-15")?.addEventListener("click", () => {
     setTimeCount(15);
+    setText();
+    showText();
   });
   document.querySelector("#tc-30")?.addEventListener("click", () => {
     setTimeCount(30);
+    setText();
+    showText();
   });
   document.querySelector("#tc-60")?.addEventListener("click", () => {
     setTimeCount(60);
+    setText();
+    showText();
   });
   document.querySelector("#tc-120")?.addEventListener("click", () => {
     setTimeCount(120);
+    setText();
+    showText();
   });
   document.querySelector("#tc-240")?.addEventListener("click", () => {
     setTimeCount(240);
+    setText();
+    showText();
   });
 
   // Function to add punctuation to a list of words
@@ -551,7 +641,7 @@
 
   // Functions to change language setting
   function setLanguage(lang) {
-    selectedLanguageWords = allWords[lang];
+    selectedLanguageWords = extensionState.allWords[lang];
   }
 
   // Function to change punctuation setting
@@ -571,11 +661,10 @@
       .querySelectorAll("#word-count > span")
       .forEach((e) => (e.style.borderBottom = ""));
     document.querySelector(`#wc-${wordCount}`).style.borderBottom = "2px solid";
-    setText();
-    showText();
 
     // Change state
-    vscode.setState({ ...previousState, count: wordCount });
+    vscode.setState({ ...extensionState, count: wordCount });
+    extensionState = vscode.getState();
 
     // Send message to extension to update setting
     vscode.postMessage({
@@ -592,11 +681,10 @@
       e.innerHTML = e.id.substring(3, 6);
     });
     document.querySelector(`#tc-${timeCount}`).style.borderBottom = "2px solid";
-    setText();
-    showText();
 
     // Change state
-    vscode.setState({ ...previousState, count: timeCount });
+    vscode.setState({ ...extensionState, count: timeCount });
+    extensionState = vscode.getState();
 
     // Send message to extension to update setting
     vscode.postMessage({
@@ -638,15 +726,13 @@
     cursor.classList.remove("hidden");
     updateCursorPosition(0, 0);
 
-    // Show code snippet and focus into it
-    showCodeText();
-    document.getElementById("coding-area").focus();
-
     return;
   }
+
   // Function to set selection as new code snippet and reset states
-  function setSelectionCodeText(selection) {
-    currentCode = selection;
+  function setSelectedCodeText(selectedCode) {
+    // Change code snippet
+    currentCode = selectedCode;
 
     // Reset progress state
     clearTimeout(timer);
@@ -665,19 +751,18 @@
     cursor.classList.remove("hidden");
     updateCursorPosition(0, 0);
 
-    // Show code snippet and focus into it
-    showCodeText();
-    document.getElementById("coding-area").focus();
-
     return;
   }
 
   // Function to show the code snippet in the dom
   function showCodeText() {
-    highlightCode(currentCode, previousState.codeLanguage);
+    highlightCode(currentCode, selectedLanguageName);
 
     // Update state with the correct characters
     updateStateChars();
+
+    // Focus into it
+    document.getElementById("coding-area").focus();
     return;
   }
 
@@ -738,7 +823,7 @@
     };
   }
 
-  // Function that returns highlights code
+  // Function that sets highlighted code in dom
   function highlightCode(codeSnippet, language) {
     codeDiv = document.getElementById("code-code");
 

@@ -101,18 +101,6 @@ body {
   overflow: scroll;
 }
 
-#coding-area:after {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 20%;
-  width: 100%;
-  content: "";
-  border-radius: 0.4rem;
-  background: linear-gradient(to top, #404754 20%, rgba(255, 255, 255, 0) 80%);
-  pointer-events: none;
-}
-
 #text-display,
 #code-display {
   margin-bottom: 1rem;
