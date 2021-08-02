@@ -42,20 +42,23 @@ function activate(context) {
         }
         // Get selection
         const selections = editor.selections;
-        let firstSelection = editor.document.getText(selections[0]);
+        let selectedCode = editor.document.getText(selections[0]);
         // Return if no selection
-        if (firstSelection.length == 0) {
+        if (selectedCode.length == 0) {
             return;
         }
         // Limit selection size
-        firstSelection = firstSelection.substring(0, 2000);
+        selectedCode = selectedCode.substring(0, 3000);
         // Get editor file language
-        const fileLanguage = editor.document.fileName.split(".").pop();
+        let selectedCodeLanguage = editor.document.fileName.split(".").pop();
+        selectedCodeLanguage =
+            selectedCodeLanguage.charAt(0).toUpperCase() +
+                selectedCodeLanguage.slice(1);
         // Create or show webview
         webviewPanel_1.default.createOrShow(context.extensionUri);
         // Send all user settings to webview to start with selection
         if (webviewPanel_1.default.currentPanel) {
-            webviewPanel_1.default.currentPanel.sendStartWithSelectionAndConfig(firstSelection, fileLanguage, words, codes);
+            webviewPanel_1.default.currentPanel.sendStartWithSelectionAndConfig(selectedCode, selectedCodeLanguage, words, codes);
         }
     }));
     // Register switchNaturalLanguage command

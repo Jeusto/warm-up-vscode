@@ -8,7 +8,7 @@
 
 body {
   padding: 0 var(--container-paddding);
-  color: var(--vscode-foreground);
+  color: var(--vscode-editor-foreground);
   font-size: var(--vscode-font-size);
   font-weight: var(--vscode-font-weight);
   background-color: var(--vscode-editor-background);
@@ -32,7 +32,7 @@ form > * {
 }
 
 *:focus {
-  outline-color: var(--vscode-focusBorder) !important;
+  outline-color: var(--vscode-foreground) !important;
 }
 
 a {
@@ -54,7 +54,6 @@ button {
   padding: var(--input-padding-vertical) var(--input-padding-horizontal);
   text-align: center;
   outline: 1px solid transparent;
-  outline-offset: 2px !important;
   color: var(--vscode-button-foreground);
   background: var(--vscode-button-background);
 }
@@ -64,7 +63,7 @@ button:hover {
 }
 
 button:focus {
-  outline-color: var(--vscode-focusBorder);
+  outline-color: var(--vscode-foreground);
 }
 
 button.secondary {
@@ -84,7 +83,7 @@ textarea {
   font-family: var(--vscode-font-family);
   padding: var(--input-padding-vertical) var(--input-padding-horizontal);
   color: var(--vscode-input-foreground);
-  outline-color: var(--vscode-input-border);
+  outline-color: var(--vscode-foreground);
   background-color: var(--vscode-input-background);
 }
 

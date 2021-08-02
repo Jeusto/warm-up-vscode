@@ -76,10 +76,12 @@ class WarmUpPanel {
         });
     }
     // Function to send all config and start webview with selected code
-    sendStartWithSelectionAndConfig(selectedCode, fileLanguage, words, codes) {
+    sendStartWithSelectionAndConfig(selectedCode, selectedCodeLanguage, words, codes) {
+        console.log(document.getElementById("header").innerHTML);
         this._panel.webview.postMessage({
             type: "practiceWithSelection",
             selectedCode,
+            selectedCodeLanguage,
             words: words,
             codes: codes,
             language: vscode_1.workspace
@@ -127,11 +129,12 @@ class WarmUpPanel {
     getHtmlForWebview(webview) {
         // Uri we use to load this script in the webview
         const prismScriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "prism.js"));
+        const tinyColorScriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "tinycolor.js"));
         const scriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "main.js"));
         // Uri to load styles into webview
         const styleVSCodeUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "vscode.css"));
         const styleGameUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "game.css"));
-        const stylePrismUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "prism.css"));
+        const styleThemeUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "theme.css"));
         const styleColorBlindUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "colorblind.css"));
         // Use a nonce to only allow specific scripts to be run
         const nonce = getNonce();
@@ -141,15 +144,9 @@ class WarmUpPanel {
 				<meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-				<!--
-					Use a content security policy to only allow loading images from https or from our extension directory,
-					and only allow scripts that have a specific nonce.
-				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} https:; img-src ${webview.cspSource} https:; script-src ${webview.cspSource} https:;">
-
 				<link href="${styleVSCodeUri}" rel="stylesheet">
 				<link href="${styleGameUri}" rel="stylesheet">
-				<link href="${stylePrismUri}" rel="stylesheet">
+				<link href="${styleThemeUri}" rel="stylesheet">
 				<link href="${styleColorBlindUri}" rel="stylesheet">
 
 				<title>Warm Up</title>
@@ -209,7 +206,7 @@ class WarmUpPanel {
           </div>
         </div>
 
-        <div id="charDimensions"></div>
+        <div></div>
         <script
           src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.0/purify.min.js"
           integrity="sha512-FJzrdtFBVzaaehq9mzbhljqwJ7+jE0GyTa8UBxZdMsMUjflR25f5lJSGD0lmQPHnhQfnctG0B1TNQsObwyJUzA=="
@@ -217,6 +214,7 @@ class WarmUpPanel {
           referrerpolicy="no-referrer"
         ></script>
         <script nonce="${nonce}" src="${prismScriptUri}" data-manual></script>
+        <script nonce="${nonce}" src="${tinyColorScriptUri}"></script>
         <script nonce="${nonce}" src="${scriptUri}"></script>
       </body>
 			</html>`;

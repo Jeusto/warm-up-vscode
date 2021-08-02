@@ -123,13 +123,15 @@ export default class WarmUpPanel {
   // Function to send all config and start webview with selected code
   public sendStartWithSelectionAndConfig(
     selectedCode: string,
-    fileLanguage: string,
+    selectedCodeLanguage: string,
     words: string[],
     codes: string[]
   ) {
+    console.log(document.getElementById("header").innerHTML);
     this._panel.webview.postMessage({
       type: "practiceWithSelection",
       selectedCode,
+      selectedCodeLanguage,
       words: words,
       codes: codes,
       language: workspace
@@ -189,6 +191,9 @@ export default class WarmUpPanel {
     const prismScriptUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "prism.js")
     );
+    const tinyColorScriptUri = webview.asWebviewUri(
+      Uri.joinPath(this._extensionUri, "media", "tinycolor.js")
+    );
     const scriptUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "main.js")
     );
@@ -200,8 +205,8 @@ export default class WarmUpPanel {
     const styleGameUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "game.css")
     );
-    const stylePrismUri = webview.asWebviewUri(
-      Uri.joinPath(this._extensionUri, "media", "prism.css")
+    const styleThemeUri = webview.asWebviewUri(
+      Uri.joinPath(this._extensionUri, "media", "theme.css")
     );
     const styleColorBlindUri = webview.asWebviewUri(
       Uri.joinPath(this._extensionUri, "media", "colorblind.css")
@@ -216,15 +221,9 @@ export default class WarmUpPanel {
 				<meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-				<!--
-					Use a content security policy to only allow loading images from https or from our extension directory,
-					and only allow scripts that have a specific nonce.
-				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} https:; img-src ${webview.cspSource} https:; script-src ${webview.cspSource} https:;">
-
 				<link href="${styleVSCodeUri}" rel="stylesheet">
 				<link href="${styleGameUri}" rel="stylesheet">
-				<link href="${stylePrismUri}" rel="stylesheet">
+				<link href="${styleThemeUri}" rel="stylesheet">
 				<link href="${styleColorBlindUri}" rel="stylesheet">
 
 				<title>Warm Up</title>
@@ -284,7 +283,7 @@ export default class WarmUpPanel {
           </div>
         </div>
 
-        <div id="charDimensions"></div>
+        <div></div>
         <script
           src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.0/purify.min.js"
           integrity="sha512-FJzrdtFBVzaaehq9mzbhljqwJ7+jE0GyTa8UBxZdMsMUjflR25f5lJSGD0lmQPHnhQfnctG0B1TNQsObwyJUzA=="
@@ -292,6 +291,7 @@ export default class WarmUpPanel {
           referrerpolicy="no-referrer"
         ></script>
         <script nonce="${nonce}" src="${prismScriptUri}" data-manual></script>
+        <script nonce="${nonce}" src="${tinyColorScriptUri}"></script>
         <script nonce="${nonce}" src="${scriptUri}"></script>
       </body>
 			</html>`;

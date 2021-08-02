@@ -2,6 +2,8 @@
 // It cannot access the main VS Code APIs directly
 // @ts-nocheck
 
+//const tinycolor = require("./tinycolor");
+
 (function () {
   //====================================================
   // Global
@@ -14,6 +16,24 @@
 
     // Message sent when the extension activates and sends settings
     if (message.type === "allConfig") {
+      // Get current editor background color
+      let editorBackgroundColor = tinycolor(
+        getComputedStyle(root).getPropertyValue("--editorBackgroundColor")
+      );
+      let boxBackgroundColor = "";
+
+      if (editorBackgroundColor.isLight()) {
+        boxBackgroundColor = tinycolor(editorBackgroundColor)
+          .darken(4)
+          .toString();
+      } else {
+        boxBackgroundColor = tinycolor(editorBackgroundColor)
+          .lighten(4)
+          .toString();
+      }
+
+      root.style.setProperty("--boxBackgroundColor", boxBackgroundColor);
+
       // Put words list and settings into a state
       vscode.setState({
         allWords: message.words,
@@ -72,7 +92,7 @@
       setPunctuation(message.punctuation);
 
       // Start typing test
-      setSelectedCodeText(message.selectedCode);
+      setSelectedCodeText(message.selectedCode, message.selectedCodeLanguage);
       showCodeText();
     } else {
       // Message to change a single setting
@@ -110,14 +130,14 @@
 
         case "switchTypingMode":
           if (message.value) {
-            gameOver = true;
-            setTypingMode(message.value);
-
             vscode.setState({
               ...extensionState,
               mode: message.value,
             });
             extensionState = vscode.getState();
+
+            gameOver = true;
+            setTypingMode(message.value);
           }
           break;
 
@@ -174,7 +194,7 @@
   const inputField = document.querySelector("#input-field");
 
   const cursor = document.getElementById("cursor");
-  const charDimensions = document.getElementById("charDimensions");
+  const root = document.documentElement;
 
   // Initialize dynamic variables
   let typingMode = "words (fixed amount)";
@@ -235,6 +255,7 @@
     if (e.key === "Escape") {
       if (extensionState.mode === "code snippets") {
         setCodeText(e);
+        showCodeText();
       } else {
         setText(e);
         showText();
@@ -503,7 +524,7 @@
 
       if (inputField.value !== "") {
         // Scroll down text when reach new line
-        if (typingMode === "words (against the clock)") {
+        if (extensionState.mode === "words (against the clock)") {
           const currentWordPosition =
             textDisplay.childNodes[currentWord].getBoundingClientRect();
           const nextWordPosition =
@@ -698,6 +719,10 @@
   //====================================================
   // Function to set new code snippet and reset states
   function setCodeText(e) {
+    document.querySelector("#language-selected").innerHTML =
+      extensionState.codeLanguage.charAt(0).toUpperCase() +
+      extensionState.codeLanguage.slice(1);
+
     e = e || window.event;
     var keepWordList = e && e.shiftKey;
 
@@ -730,9 +755,10 @@
   }
 
   // Function to set selection as new code snippet and reset states
-  function setSelectedCodeText(selectedCode) {
+  function setSelectedCodeText(selectedCode, selectedLanguage) {
     // Change code snippet
     currentCode = selectedCode;
+    document.querySelector("#language-selected").innerHTML = selectedLanguage;
 
     // Reset progress state
     clearTimeout(timer);
@@ -787,15 +813,11 @@
   // Retrieve cursor dimensions from css
   let cursorWidth =
     parseInt(
-      getComputedStyle(charDimensions)
-        .getPropertyValue("--vscode-editor-font-size")
-        .replace("px", "")
+      getComputedStyle(root).getPropertyValue("--charSize").replace("px", "")
     ) * 0.601;
   let cursorHeight =
     parseInt(
-      getComputedStyle(charDimensions)
-        .getPropertyValue("--vscode-editor-font-size")
-        .replace("px", "")
+      getComputedStyle(root).getPropertyValue("--charSize").replace("px", "")
     ) * 1.49;
 
   // Add event listeners for key presses
@@ -805,9 +827,6 @@
   // Function to set code language
   function setCodeLanguage(lang) {
     selectedLanguageName = lang;
-    document.querySelector("#language-selected").innerHTML =
-      selectedLanguageName.charAt(0).toUpperCase() +
-      selectedLanguageName.slice(1);
     selectedLanguageCodes = allCodes[lang];
     return;
   }
