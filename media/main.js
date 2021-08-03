@@ -16,23 +16,7 @@
 
     // Message sent when the extension activates and sends settings
     if (message.type === "allConfig") {
-      // Get current editor background color
-      let editorBackgroundColor = tinycolor(
-        getComputedStyle(root).getPropertyValue("--editorBackgroundColor")
-      );
-      let boxBackgroundColor = "";
-
-      if (editorBackgroundColor.isLight()) {
-        boxBackgroundColor = tinycolor(editorBackgroundColor)
-          .darken(4)
-          .toString();
-      } else {
-        boxBackgroundColor = tinycolor(editorBackgroundColor)
-          .lighten(4)
-          .toString();
-      }
-
-      root.style.setProperty("--boxBackgroundColor", boxBackgroundColor);
+      setBoxBackgroundColor();
 
       // Put words list and settings into a state
       vscode.setState({
@@ -67,6 +51,8 @@
         showText();
       }
     } else if (message.type === "practiceWithSelection") {
+      setBoxBackgroundColor();
+
       // Put words list and settings into a state
       vscode.setState({
         allWords: message.words,
@@ -93,7 +79,8 @@
 
       // Start typing test
       setSelectedCodeText(message.selectedCode, message.selectedCodeLanguage);
-      showCodeText();
+
+      showCodeText(message.selectedCodeLanguage);
     } else {
       // Message to change a single setting
       switch (message.config) {
@@ -197,8 +184,6 @@
   const root = document.documentElement;
 
   // Initialize dynamic variables
-  let typingMode = "words (fixed amount)";
-
   let selectedLanguageWords = [];
   let currentWordsList = [];
   let currentWord = 0;
@@ -330,6 +315,35 @@
     if (_mode === "false" && body.classList.contains("colorblind")) {
       body.classList.remove("colorblind");
     }
+  }
+
+  // Function to set box backrgound color depending on editor background color
+  function setBoxBackgroundColor() {
+    let body = document.querySelector("body");
+
+    // Get current editor background color
+    let editorBackgroundColor = tinycolor(
+      getComputedStyle(root).getPropertyValue("--editorBackgroundColor")
+    );
+    let boxBackgroundColor = "";
+
+    if (editorBackgroundColor.isLight()) {
+      boxBackgroundColor = tinycolor(editorBackgroundColor)
+        .darken(4)
+        .toString();
+      if (!body.classList.contains("light")) {
+        body.classList.add("light");
+      }
+    } else {
+      boxBackgroundColor = tinycolor(editorBackgroundColor)
+        .lighten(4)
+        .toString();
+      if (body.classList.contains("light")) {
+        body.classList.remove("light");
+      }
+    }
+
+    root.style.setProperty("--boxBackgroundColor", boxBackgroundColor);
   }
 
   //====================================================
@@ -758,7 +772,8 @@
   function setSelectedCodeText(selectedCode, selectedLanguage) {
     // Change code snippet
     currentCode = selectedCode;
-    document.querySelector("#language-selected").innerHTML = selectedLanguage;
+    document.querySelector("#language-selected").innerHTML =
+      selectedLanguage.charAt(0).toUpperCase() + selectedLanguage.slice(1);
 
     // Reset progress state
     clearTimeout(timer);
@@ -781,8 +796,12 @@
   }
 
   // Function to show the code snippet in the dom
-  function showCodeText() {
-    highlightCode(currentCode, selectedLanguageName);
+  function showCodeText(userSelectedLanguage) {
+    if (userSelectedLanguage) {
+      highlightCode(currentCode, userSelectedLanguage);
+    } else {
+      highlightCode(currentCode, selectedLanguageName);
+    }
 
     // Update state with the correct characters
     updateStateChars();

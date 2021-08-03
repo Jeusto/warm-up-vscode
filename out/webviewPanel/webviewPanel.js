@@ -77,7 +77,7 @@ class WarmUpPanel {
     }
     // Function to send all config and start webview with selected code
     sendStartWithSelectionAndConfig(selectedCode, selectedCodeLanguage, words, codes) {
-        console.log(document.getElementById("header").innerHTML);
+        console.log(selectedCodeLanguage);
         this._panel.webview.postMessage({
             type: "practiceWithSelection",
             selectedCode,
@@ -132,10 +132,7 @@ class WarmUpPanel {
         const tinyColorScriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "tinycolor.js"));
         const scriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "main.js"));
         // Uri to load styles into webview
-        const styleVSCodeUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "vscode.css"));
-        const styleGameUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "game.css"));
-        const styleThemeUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "theme.css"));
-        const styleColorBlindUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "colorblind.css"));
+        const styleUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "style.css"));
         // Use a nonce to only allow specific scripts to be run
         const nonce = getNonce();
         return `<!DOCTYPE html>
@@ -144,10 +141,7 @@ class WarmUpPanel {
 				<meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-				<link href="${styleVSCodeUri}" rel="stylesheet">
-				<link href="${styleGameUri}" rel="stylesheet">
-				<link href="${styleThemeUri}" rel="stylesheet">
-				<link href="${styleColorBlindUri}" rel="stylesheet">
+				<link href="${styleUri}" rel="stylesheet">
 
 				<title>Warm Up</title>
 			</head> 
@@ -162,7 +156,7 @@ class WarmUpPanel {
         <div id="command-center">
           <div class="bar">
             <div id="left-wing">
-              <span id="word-count">
+              <span id="word-count" style="display:none;">
                 <span id="wc-15">15</span>
                 <text> / </text>
                 <span id="wc-30">30</span>
@@ -173,7 +167,7 @@ class WarmUpPanel {
                 <text> / </text>
                 <span id="wc-240">240</span>
               </span>
-              <span id="time-count">
+              <span id="time-count" style="display:none;">
                 <span id="tc-15">15</span>
                 <text> / </text>
                 <span id="tc-30">30</span>
@@ -184,18 +178,18 @@ class WarmUpPanel {
                 <text> / </text>
                 <span id="tc-240">240</span>
               </span>
-              <span id="language-selected">Language</span>
+              <span id="language-selected" style="display:none;">Language</span>
             </div>
             <div id="right-wing">WPM: XX / ACC: XX</div>
           </div>
-          <div id="typing-area">
+          <div id="typing-area" style="display:none;">
             <div id="text-display"></div>
             <div class="bar">
               <input id="input-field" type="text" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" tabindex="1"/>
               <button id="restart-button" tabindex="2">restart</button>
             </div>
           </div>
-          <div id="coding-area" tabindex="-1" style="display: inline;">
+          <div id="coding-area" tabindex="-1" style="display:none;">
             <div class="code-display">
               <div class="code">
                 <pre id="code-pre"><code id="code-code"></code></pre>

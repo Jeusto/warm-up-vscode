@@ -75,14 +75,13 @@ export function activate(context: ExtensionContext) {
       selectedCode = selectedCode.substring(0, 3000);
 
       // Get editor file language
-      let selectedCodeLanguage = editor.document.fileName.split(".").pop();
-      selectedCodeLanguage =
-        selectedCodeLanguage.charAt(0).toUpperCase() +
-        selectedCodeLanguage.slice(1);
+      const selectedCodeLanguage = editor.document.fileName.split(".").pop();
 
       // Create or show webview
       WarmUpPanel.createOrShow(context.extensionUri);
 
+      console.log(selectedCodeLanguage);
+      console.log(selectedCode);
       // Send all user settings to webview to start with selection
       if (WarmUpPanel.currentPanel) {
         WarmUpPanel.currentPanel.sendStartWithSelectionAndConfig(
@@ -151,9 +150,9 @@ export function activate(context: ExtensionContext) {
             "javascript",
             "python",
             "java",
-            "c#",
+            "csharp",
             "typescript",
-            "c++",
+            "cpp",
             "c",
             "go",
             "kotlin",
@@ -348,6 +347,11 @@ export function activate(context: ExtensionContext) {
           localResourceRoots: [Uri.joinPath(context.extensionUri, "media")],
         };
         WarmUpPanel.revive(webviewPanel, context.extensionUri);
+
+        // Send config
+        if (WarmUpPanel.currentPanel) {
+          WarmUpPanel.currentPanel.sendStartAndConfig(words, codes);
+        }
       },
     });
   }

@@ -50,12 +50,11 @@ function activate(context) {
         // Limit selection size
         selectedCode = selectedCode.substring(0, 3000);
         // Get editor file language
-        let selectedCodeLanguage = editor.document.fileName.split(".").pop();
-        selectedCodeLanguage =
-            selectedCodeLanguage.charAt(0).toUpperCase() +
-                selectedCodeLanguage.slice(1);
+        const selectedCodeLanguage = editor.document.fileName.split(".").pop();
         // Create or show webview
         webviewPanel_1.default.createOrShow(context.extensionUri);
+        console.log(selectedCodeLanguage);
+        console.log(selectedCode);
         // Send all user settings to webview to start with selection
         if (webviewPanel_1.default.currentPanel) {
             webviewPanel_1.default.currentPanel.sendStartWithSelectionAndConfig(selectedCode, selectedCodeLanguage, words, codes);
@@ -95,9 +94,9 @@ function activate(context) {
             "javascript",
             "python",
             "java",
-            "c#",
+            "csharp",
             "typescript",
-            "c++",
+            "cpp",
             "c",
             "go",
             "kotlin",
@@ -211,6 +210,10 @@ function activate(context) {
                     localResourceRoots: [vscode_1.Uri.joinPath(context.extensionUri, "media")],
                 };
                 webviewPanel_1.default.revive(webviewPanel, context.extensionUri);
+                // Send config
+                if (webviewPanel_1.default.currentPanel) {
+                    webviewPanel_1.default.currentPanel.sendStartAndConfig(words, codes);
+                }
             },
         });
     }
