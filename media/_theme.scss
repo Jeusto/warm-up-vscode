@@ -45,6 +45,21 @@ pre[class*="language-"] {
 .token.punctuation {
   color: #c1c9d4;
 }
+
+.vscode-light code[class*="language-"],
+.vscode-light pre[class*="language-"] {
+  color: #454d5e;
+}
+.vscode-light .token.comment,
+.vscode-light .token.prolog,
+.vscode-light .token.doctype,
+.vscode-light .token.cdata {
+  color: #99a5b6;
+}
+.vscode-light .token.punctuation {
+  color: #454d5e;
+}
+
 .token.selector,
 .token.tag {
   color: #e06c75;

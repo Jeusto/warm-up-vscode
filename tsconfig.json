@@ -7,7 +7,8 @@
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": false,
-    "rootDir": "src"
+    "rootDir": "src",
+    "experimentalDecorators": true,
   },
   "exclude": ["node_modules", ".vscode-test"]
 }

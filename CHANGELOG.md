@@ -2,21 +2,21 @@
 
 All notable changes to the "warm-up-typing-test" extension will be documented in this file.
 
-## 0.2.0
+## 1.0.0
 
 #### Added
 
-- New typing mode called "code snippets"
-- Color blind settings for the "words" mode
+- Typing mode called "code snippets"
+- Programming languages selection
+- Command to practice with your selected text/code snippet
+- Color blind setting for the "words" mode
 - Webview icon
-- New programming languages
 
 #### Changed
 
-- Clean code
-- Separate webview into it's own
+- Separate webview into it's own file
 - Some commands and settings
+- More consistent colours accross all user color themes
+- Clean some of the code
+- Use scss and minify all files
 
-## 0.1.0
-
-- Initial release

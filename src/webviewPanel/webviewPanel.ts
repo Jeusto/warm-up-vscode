@@ -44,16 +44,6 @@ export default class WarmUpPanel {
                 ConfigurationTarget.Global
               );
             break;
-          case "switchTypingMode":
-            // Update typing mode value with user choice
-            await workspace
-              .getConfiguration()
-              .update(
-                "warmUp.switchTypingMode",
-                message.mode,
-                ConfigurationTarget.Global
-              );
-            break;
         }
       },
       null,
@@ -111,7 +101,7 @@ export default class WarmUpPanel {
       codeLanguage: workspace
         .getConfiguration()
         .get("warmUp.switchProgrammingLanguage"),
-      mode: workspace.getConfiguration().get("warmUp.switchTypingMode"),
+      mode: workspace.getConfiguration().get("warmUp.changeTypingMode"),
       count: workspace.getConfiguration().get("warmUp.changeCount"),
       punctuation: workspace.getConfiguration().get("warmUp.togglePunctuation"),
       colorBlindMode: workspace
@@ -127,7 +117,6 @@ export default class WarmUpPanel {
     words: string[],
     codes: string[]
   ) {
-    console.log(selectedCodeLanguage);
     this._panel.webview.postMessage({
       type: "practiceWithSelection",
       selectedCode,
@@ -189,13 +178,13 @@ export default class WarmUpPanel {
   private getHtmlForWebview(webview: Webview) {
     // Uri we use to load this script in the webview
     const prismScriptUri = webview.asWebviewUri(
-      Uri.joinPath(this._extensionUri, "media", "prism.js")
+      Uri.joinPath(this._extensionUri, "media", "prism.min.js")
     );
     const tinyColorScriptUri = webview.asWebviewUri(
-      Uri.joinPath(this._extensionUri, "media", "tinycolor.js")
+      Uri.joinPath(this._extensionUri, "media", "tinycolor.min.js")
     );
     const scriptUri = webview.asWebviewUri(
-      Uri.joinPath(this._extensionUri, "media", "main.js")
+      Uri.joinPath(this._extensionUri, "media", "main.min.js")
     );
 
     // Uri to load styles into webview

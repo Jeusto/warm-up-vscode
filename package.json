@@ -8,7 +8,7 @@
 		"url": "https://github.com/Jeusto/vscode-typing-test"
 	},
 	"icon": "icon.png",
-	"version": "0.1.2",
+	"version": "1.0.0",
 	"license": "GPL 3.0",
 	"keywords": [
 		"arhun saday",
@@ -75,6 +75,7 @@
 							"python",
 							"java",
 							"csharp",
+							"php",
 							"typescript",
 							"cpp",
 							"c",
@@ -92,7 +93,7 @@
 			{
 				"title": "Warm Up: Typing test",
 				"properties": {
-					"warmUp.switchTypingMode": {
+					"warmUp.changeTypingMode": {
 						"type": "string",
 						"enum": [
 							"words (fixed amount)",
@@ -171,8 +172,8 @@
 				"category": "Warm Up"
 			},
 			{
-				"command": "warmUp.switchTypingMode",
-				"title": "Switch typing mode",
+				"command": "warmUp.changeTypingMode",
+				"title": "Change typing mode",
 				"category": "Warm Up"
 			},
 			{
@@ -198,9 +199,15 @@
 		],
 		"keybindings": [
 			{
-				"command": "warmUp.practiceWithSelection",
+				"command": "warmUp.start",
 				"key": "ctrl+alt+p",
 				"mac": "cmd+alt+p",
+				"when": ""
+			},
+			{
+				"command": "warmUp.practiceWithSelection",
+				"key": "ctrl+alt+s",
+				"mac": "cmd+alt+s",
 				"when": "editorHasSelection"
 			}
 		]

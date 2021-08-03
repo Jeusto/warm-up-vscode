@@ -2,8 +2,6 @@
 // It cannot access the main VS Code APIs directly
 // @ts-nocheck
 
-//const tinycolor = require("./tinycolor");
-
 (function () {
   //====================================================
   // Global
@@ -115,7 +113,7 @@
           }
           break;
 
-        case "switchTypingMode":
+        case "changeTypingMode":
           if (message.value) {
             vscode.setState({
               ...extensionState,
@@ -252,12 +250,6 @@
   function setTypingMode(_mode) {
     const mode = _mode.toLowerCase();
 
-    // Send message to extension to update setting
-    vscode.postMessage({
-      command: "switchTypingMode",
-      mode: mode,
-    });
-
     switch (mode) {
       case "words (fixed amount)":
         // Update ui
@@ -331,16 +323,10 @@
       boxBackgroundColor = tinycolor(editorBackgroundColor)
         .darken(4)
         .toString();
-      if (!body.classList.contains("light")) {
-        body.classList.add("light");
-      }
     } else {
       boxBackgroundColor = tinycolor(editorBackgroundColor)
         .lighten(4)
         .toString();
-      if (body.classList.contains("light")) {
-        body.classList.remove("light");
-      }
     }
 
     root.style.setProperty("--boxBackgroundColor", boxBackgroundColor);
@@ -582,52 +568,52 @@
   });
 
   // Command center actions
-  document.querySelector("#wc-15")?.addEventListener("click", () => {
+  document.querySelector("#wc-15").addEventListener("click", () => {
     setWordCount(15);
     setText();
     showText();
   });
-  document.querySelector("#wc-30")?.addEventListener("click", () => {
+  document.querySelector("#wc-30").addEventListener("click", () => {
     setWordCount(30);
     setText();
     showText();
   });
-  document.querySelector("#wc-60")?.addEventListener("click", () => {
+  document.querySelector("#wc-60").addEventListener("click", () => {
     setWordCount(60);
     setText();
     showText();
   });
-  document.querySelector("#wc-120")?.addEventListener("click", () => {
+  document.querySelector("#wc-120").addEventListener("click", () => {
     setWordCount(120);
     setText();
     showText();
   });
-  document.querySelector("#wc-240")?.addEventListener("click", () => {
+  document.querySelector("#wc-240").addEventListener("click", () => {
     setWordCount(240);
     setText();
     showText();
   });
-  document.querySelector("#tc-15")?.addEventListener("click", () => {
+  document.querySelector("#tc-15").addEventListener("click", () => {
     setTimeCount(15);
     setText();
     showText();
   });
-  document.querySelector("#tc-30")?.addEventListener("click", () => {
+  document.querySelector("#tc-30").addEventListener("click", () => {
     setTimeCount(30);
     setText();
     showText();
   });
-  document.querySelector("#tc-60")?.addEventListener("click", () => {
+  document.querySelector("#tc-60").addEventListener("click", () => {
     setTimeCount(60);
     setText();
     showText();
   });
-  document.querySelector("#tc-120")?.addEventListener("click", () => {
+  document.querySelector("#tc-120").addEventListener("click", () => {
     setTimeCount(120);
     setText();
     showText();
   });
-  document.querySelector("#tc-240")?.addEventListener("click", () => {
+  document.querySelector("#tc-240").addEventListener("click", () => {
     setTimeCount(240);
     setText();
     showText();
@@ -834,10 +820,10 @@
     parseInt(
       getComputedStyle(root).getPropertyValue("--charSize").replace("px", "")
     ) * 0.601;
-  let cursorHeight =
-    parseInt(
-      getComputedStyle(root).getPropertyValue("--charSize").replace("px", "")
-    ) * 1.49;
+  let cursorHeight = parseInt(
+    getComputedStyle(root).getPropertyValue("--charSize").replace("px", "") *
+      1.5
+  );
 
   // Add event listeners for key presses
   document.addEventListener("keydown", (e) => handleKeyDown(e));

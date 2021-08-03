@@ -2,3 +2,7 @@ node_modules
 .vscode
 .vsix
 *.map
+webviewPanel.js.map
+webviewPanel.min.js
+extension.min.js
+extension.js.map

@@ -6,7 +6,8 @@
 }
 body {
   margin: 0;
-  min-height: 90vh;
+  height: 100vh;  
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,11 +39,11 @@ body {
 /* Main */
 #command-center {
   margin: 0 0.4rem;
-  margin-top: 4rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   transform: translateY(-2vh);
+  max-height: calc(70vh - 4rem);
 }
 .bar {
   display: flex;
@@ -118,11 +119,21 @@ body {
   padding: 1rem 1rem;
   border-radius: 0.4rem;
   outline: none;
-  width: 80vw;
+  width: 75vw;
   max-width: 55rem;
   max-height: 60vh;
   overflow: scroll;
   min-height: 4rem;
+  position: relative;
+}
+#coding-area:after {
+  content: "";
+  width: 98%;
+  height: 102%;
+  position: fixed;
+  left: 0;
+  top: -0.9rem;
+  background: linear-gradient(transparent 88%, var(--boxBackgroundColor) 100%);
 }
 #code-display {
   overflow: hidden;
@@ -147,7 +158,7 @@ body {
   padding: 0;
 }
 .char.topass {
-  opacity: 0.62;
+  opacity: 0.57;
 }
 .charDiv {
   display: inline;

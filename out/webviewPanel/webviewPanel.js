@@ -22,12 +22,6 @@ class WarmUpPanel {
                         .getConfiguration()
                         .update("warmUp.changeCount", message.count.toString(), vscode_1.ConfigurationTarget.Global);
                     break;
-                case "switchTypingMode":
-                    // Update typing mode value with user choice
-                    await vscode_1.workspace
-                        .getConfiguration()
-                        .update("warmUp.switchTypingMode", message.mode, vscode_1.ConfigurationTarget.Global);
-                    break;
             }
         }, null, this._disposables);
     }
@@ -67,7 +61,7 @@ class WarmUpPanel {
             codeLanguage: vscode_1.workspace
                 .getConfiguration()
                 .get("warmUp.switchProgrammingLanguage"),
-            mode: vscode_1.workspace.getConfiguration().get("warmUp.switchTypingMode"),
+            mode: vscode_1.workspace.getConfiguration().get("warmUp.changeTypingMode"),
             count: vscode_1.workspace.getConfiguration().get("warmUp.changeCount"),
             punctuation: vscode_1.workspace.getConfiguration().get("warmUp.togglePunctuation"),
             colorBlindMode: vscode_1.workspace
@@ -77,7 +71,6 @@ class WarmUpPanel {
     }
     // Function to send all config and start webview with selected code
     sendStartWithSelectionAndConfig(selectedCode, selectedCodeLanguage, words, codes) {
-        console.log(selectedCodeLanguage);
         this._panel.webview.postMessage({
             type: "practiceWithSelection",
             selectedCode,
@@ -128,9 +121,9 @@ class WarmUpPanel {
     // Function that returns the html for the webview
     getHtmlForWebview(webview) {
         // Uri we use to load this script in the webview
-        const prismScriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "prism.js"));
-        const tinyColorScriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "tinycolor.js"));
-        const scriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "main.js"));
+        const prismScriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "prism.min.js"));
+        const tinyColorScriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "tinycolor.min.js"));
+        const scriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "main.min.js"));
         // Uri to load styles into webview
         const styleUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "style.css"));
         // Use a nonce to only allow specific scripts to be run

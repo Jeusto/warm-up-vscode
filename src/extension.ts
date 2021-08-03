@@ -40,7 +40,7 @@ export function activate(context: ExtensionContext) {
   // Display status bar icon
   myStatusBarItem.show();
 
-  // Register start command
+  // Register start commandd
   context.subscriptions.push(
     commands.registerCommand("warmUp.start", () => {
       // Create or show webview
@@ -75,14 +75,12 @@ export function activate(context: ExtensionContext) {
       selectedCode = selectedCode.substring(0, 3000);
 
       // Get editor file language
-      const selectedCodeLanguage = editor.document.fileName.split(".").pop();
+      let selectedCodeLanguage = editor.document.fileName.split(".").pop();
 
       // Create or show webview
       WarmUpPanel.createOrShow(context.extensionUri);
 
-      console.log(selectedCodeLanguage);
-      console.log(selectedCode);
-      // Send all user settings to webview to start with selection
+      // Send all user settings to webview to start with a selection
       if (WarmUpPanel.currentPanel) {
         WarmUpPanel.currentPanel.sendStartWithSelectionAndConfig(
           selectedCode,
@@ -151,6 +149,7 @@ export function activate(context: ExtensionContext) {
             "python",
             "java",
             "csharp",
+            "php",
             "typescript",
             "cpp",
             "c",
@@ -184,10 +183,10 @@ export function activate(context: ExtensionContext) {
     )
   );
 
-  // Register switchTypingMode command
+  // Register changeTypingMode command
   context.subscriptions.push(
     commands.registerCommand(
-      "warmUp.switchTypingMode",
+      "warmUp.changeTypingMode",
       async function showQuickPick() {
         // Get user choice
         let userChoice = await window.showQuickPick(
@@ -213,7 +212,7 @@ export function activate(context: ExtensionContext) {
         await workspace
           .getConfiguration()
           .update(
-            "warmUp.switchTypingMode",
+            "warmUp.changeTypingMode",
             userChoice,
             ConfigurationTarget.Global
           );
@@ -221,7 +220,7 @@ export function activate(context: ExtensionContext) {
         // Send configuration change to webview if it exists
         if (WarmUpPanel.currentPanel) {
           WarmUpPanel.currentPanel.sendConfigMessage(
-            "switchTypingMode",
+            "changeTypingMode",
             userChoice
           );
         }
