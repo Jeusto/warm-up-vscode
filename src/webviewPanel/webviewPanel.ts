@@ -210,7 +210,7 @@ export default class WarmUpPanel {
           <h2 id="header">
             Warm Up - Typing test
           </h2>
-          <p id="subtitle">Hit "ctrl+shift+p" and enter "warmup" to see available commands</p>
+          <p id="subtitle">Hit "cmd/ctrl+shift+p" and enter "warmup" to see available commands</p>
         </div>
 
         <div id="command-center">
