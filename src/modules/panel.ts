@@ -10,9 +10,9 @@ import {
 } from "vscode";
 
 // Manages webview panel
-export default class WarmUpPanel {
+export default class WarmupWebview {
   // Track the currently panel and only allow a single panel to exist at a time
-  public static currentPanel: WarmUpPanel | undefined;
+  public static currentPanel: WarmupWebview | undefined;
   public static readonly viewType = "warmUp";
   private readonly _panel: WebviewPanel;
   private readonly _extensionUri: Uri;
@@ -58,14 +58,14 @@ export default class WarmUpPanel {
       : undefined;
 
     // If we already have a panel, show it.
-    if (WarmUpPanel.currentPanel) {
-      WarmUpPanel.currentPanel._panel.reveal(column);
+    if (WarmupWebview.currentPanel) {
+      WarmupWebview.currentPanel._panel.reveal(column);
       return;
     }
 
     // Otherwise, create a new panel.
     const panel = window.createWebviewPanel(
-      WarmUpPanel.viewType,
+      WarmupWebview.viewType,
       "Warm Up",
       column || ViewColumn.One,
       {
@@ -73,17 +73,17 @@ export default class WarmUpPanel {
         enableScripts: true,
         retainContextWhenHidden: true,
 
-        // And restrict the webview to only loading content from our extension's `media` directory.
-        localResourceRoots: [Uri.joinPath(extensionUri, "media")],
+        // And restrict the webview to only loading content from our extension's "webview" directory.
+        localResourceRoots: [Uri.joinPath(extensionUri, "webview")],
       }
     );
 
-    WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
+    WarmupWebview.currentPanel = new WarmupWebview(panel, extensionUri);
   }
 
   // Function to restore webview panel when VSCode is closed and opened back
   public static revive(panel: WebviewPanel, extensionUri: Uri) {
-    WarmUpPanel.currentPanel = new WarmUpPanel(panel, extensionUri);
+    WarmupWebview.currentPanel = new WarmupWebview(panel, extensionUri);
   }
 
   // Function send all config and start webview
@@ -149,7 +149,7 @@ export default class WarmUpPanel {
 
   // Function to dispose of the webview panel
   public dispose() {
-    WarmUpPanel.currentPanel = undefined;
+    WarmupWebview.currentPanel = undefined;
 
     // Clean up our resources
     this._panel.dispose();
@@ -169,7 +169,7 @@ export default class WarmUpPanel {
     this._panel.title = "Warm Up";
     this._panel.iconPath = Uri.joinPath(
       this._extensionUri,
-      "media",
+      "webview",
       "icon.svg"
     );
   }
@@ -178,18 +178,18 @@ export default class WarmUpPanel {
   private getHtmlForWebview(webview: Webview) {
     // Uri we use to load this script in the webview
     const prismScriptUri = webview.asWebviewUri(
-      Uri.joinPath(this._extensionUri, "media", "prism.min.js")
+      Uri.joinPath(this._extensionUri, "webview", "modules/prism.min.js")
     );
     const tinyColorScriptUri = webview.asWebviewUri(
-      Uri.joinPath(this._extensionUri, "media", "tinycolor.min.js")
+      Uri.joinPath(this._extensionUri, "webview", "modules/tinycolor.min.js")
     );
     const scriptUri = webview.asWebviewUri(
-      Uri.joinPath(this._extensionUri, "media", "main.min.js")
+      Uri.joinPath(this._extensionUri, "webview", "main.js")
     );
 
     // Uri to load styles into webview
     const styleUri = webview.asWebviewUri(
-      Uri.joinPath(this._extensionUri, "media", "style.css")
+      Uri.joinPath(this._extensionUri, "webview", "style/style.css")
     );
 
     // Use a nonce to only allow specific scripts to be run
@@ -269,7 +269,7 @@ export default class WarmUpPanel {
         ></script>
         <script nonce="${nonce}" src="${prismScriptUri}" data-manual></script>
         <script nonce="${nonce}" src="${tinyColorScriptUri}"></script>
-        <script nonce="${nonce}" src="${scriptUri}"></script>
+        <script nonce="${nonce}" src="${scriptUri}" type="module"></script>
       </body>
 			</html>`;
   }

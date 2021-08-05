@@ -1,7 +1,8 @@
-node_modules
 .vscode
 .vsix
 *.map
+out
+node_modules
 webviewPanel.js.map
 webviewPanel.min.js
 extension.min.js

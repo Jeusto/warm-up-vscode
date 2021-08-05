@@ -193,6 +193,7 @@
   let timerActive = false;
   let timer;
 
+  let allWords = [];
   let allCodes = [];
   let selectedLanguageCodes = [];
   let selectedLanguageName = "";
@@ -384,7 +385,7 @@
         if (!keepWordList) {
           currentWordsList = [];
 
-          for (i = 0; i < 500; i++) {
+          for (let i = 0; i < 500; i++) {
             let n = Math.floor(Math.random() * selectedLanguageWords.length);
 
             currentWordsList.push(selectedLanguageWords[n]);
@@ -428,7 +429,7 @@
         minute = timeCount / 60;
         let sumKeys = -1;
 
-        for (i = 0; i < currentWord; i++) {
+        for (let i = 0; i < currentWord; i++) {
           sumKeys += currentWordsList[i].length + 1;
         }
         acc = acc = Math.min(Math.floor((correctKeys / sumKeys) * 100), 100);
@@ -530,7 +531,7 @@
           const nextWordPosition =
             textDisplay.childNodes[currentWord + 1].getBoundingClientRect();
           if (currentWordPosition.top < nextWordPosition.top) {
-            for (i = 0; i < currentWord + 1; i++)
+            for (let i = 0; i < currentWord + 1; i++)
               textDisplay.childNodes[i].style.display = "none";
           }
         }
@@ -627,7 +628,7 @@
         currentWordsList[0][0].toUpperCase() + currentWordsList[0].slice(1);
 
       // Add comma, fullstop, question mark, exclamation mark, semicolon. Capitalize the next word
-      for (i = 0; i < currentWordsList.length; i++) {
+      for (let i = 0; i < currentWordsList.length; i++) {
         const ran = Math.random();
 
         if (i < currentWordsList.length - 1) {
@@ -849,7 +850,7 @@
 
   // Function that sets highlighted code in dom
   function highlightCode(codeSnippet, language) {
-    codeDiv = document.getElementById("code-code");
+    let codeDiv = document.getElementById("code-code");
 
     document.getElementById("code-pre").className = "";
     document.getElementById("code-code").className = "";
