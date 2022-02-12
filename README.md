@@ -1,5 +1,7 @@
 # Warm Up
 
+[![Version](https://img.shields.io/visual-studio-marketplace/v/jeusto.warm-up-typing-test.svg)](https://marketplace.visualstudio.com/items?itemName=Jeusto.warm-up-typing-test) [![Downloads](https://img.shields.io/vscode-marketplace/d/jeusto.warm-up-typing-test.svg)](https://marketplace.visualstudio.com/items?itemName=Jeusto.warm-up-typing-test) [![Rating](https://img.shields.io/visual-studio-marketplace/stars/jeusto.warm-up-typing-test.svg)](https://marketplace.visualstudio.com/items?itemName=Jeusto.warm-up-typing-test)
+
 🔥👨‍💻 A VS Code extension to practice and improve your typing speed right inside your code editor. Practice with simple words or code snippets.
 
 Choose between 12 natural languages, 12 programming languages or select anything in your editor and practice with your own code snippets.
