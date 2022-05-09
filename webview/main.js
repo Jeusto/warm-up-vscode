@@ -817,10 +817,11 @@
   }
 
   // Retrieve cursor dimensions from css
-  let cursorWidth =
-    parseInt(
-      getComputedStyle(root).getPropertyValue("--charSize").replace("px", "")
-    ) * 0.601;
+  var cursorWidth = 0;
+  setTimeout(() => {
+    // Gets the actual rendered width of the char
+      cursorWidth = document.querySelectorAll(".char")[0].getBoundingClientRect().width;
+  }, 100);//Delay ensures that the data is read after rendering
   let cursorHeight = parseInt(
     getComputedStyle(root).getPropertyValue("--charSize").replace("px", "") *
       1.5
