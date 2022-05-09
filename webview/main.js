@@ -817,15 +817,17 @@
   }
 
   // Retrieve cursor dimensions from css
-  var cursorWidth = 0;
+  let cursorWidth = 0;
+  let cursorHeight = 0;
   setTimeout(() => {
     // Gets the actual rendered width of the char
-      cursorWidth = document.querySelectorAll(".char")[0].getBoundingClientRect().width;
-  }, 100);//Delay ensures that the data is read after rendering
-  let cursorHeight = parseInt(
-    getComputedStyle(root).getPropertyValue("--charSize").replace("px", "") *
-      1.5
-  );
+    cursorWidth = document
+      .querySelectorAll(".char")[0]
+      .getBoundingClientRect().width;
+    cursorHeight = document
+      .querySelectorAll(".char")[0]
+      .getBoundingClientRect().height;
+  }, 100); // Delay ensures that the data is read after rendering
 
   // Add event listeners for key presses
   document.addEventListener("keydown", (e) => handleKeyDown(e));

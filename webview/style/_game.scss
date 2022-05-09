@@ -6,7 +6,7 @@
 }
 body {
   margin: 0;
-  height: 100vh;  
+  height: 100vh;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -170,8 +170,8 @@ body {
 #cursor {
   display: inline-block;
   position: absolute;
-  height: calc(var(--vscode-editor-font-size) * 1.55);
-  width: calc(var(--vscode-editor-font-size) * 0.125);
+  height: calc(var(--vscode-editor-font-size) * 1.25);
+  width: calc(var(--vscode-editor-font-size) * 0.15);
   opacity: 1;
   top: 0;
   animation: cursor 0.85s infinite ease-in;
@@ -212,7 +212,6 @@ pre[class*="language-"] {
   word-spacing: normal;
   word-break: normal;
   word-wrap: normal;
-  line-height: 1.5;
   -moz-tab-size: 4;
   -o-tab-size: 4;
   tab-size: 4;
