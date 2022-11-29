@@ -72,6 +72,7 @@ export default function registerCommands(WarmupWebview, context, words, codes) {
             "portuguese",
             "russian",
             "finnish",
+            "turkish",
             "englishTop1000",
           ],
           {
