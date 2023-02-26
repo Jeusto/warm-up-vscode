@@ -1,5 +1,12 @@
 import { ConfigurationTarget, window, commands, workspace } from "vscode";
 
+/**
+ * Register all the commands
+ * @param WarmupWebview
+ * @param context
+ * @param words
+ * @param codes
+ */
 export default function registerCommands(WarmupWebview, context, words, codes) {
   // Register start commandd
   context.subscriptions.push(

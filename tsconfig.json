@@ -2,10 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2019",
-    "lib": [
-      "ES2019",
-      "DOM"
-    ],
+    "lib": ["ES2019", "DOM"],
     "outDir": "out",
     "sourceMap": true,
     "strict": true,
@@ -14,8 +11,5 @@
     "experimentalDecorators": true,
     "noImplicitAny": false
   },
-  "exclude": [
-    "node_modules",
-    ".vscode-test"
-  ]
+  "exclude": ["node_modules", ".vscode-test"]
 }

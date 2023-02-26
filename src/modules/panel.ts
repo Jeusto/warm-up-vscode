@@ -9,7 +9,9 @@ import {
   workspace,
 } from "vscode";
 
-// Manages webview panel
+/**
+ * Manages webview panel
+ */
 export default class WarmupWebview {
   // Track the currently panel and only allow a single panel to exist at a time
   public static currentPanel: WarmupWebview | undefined;
@@ -18,7 +20,11 @@ export default class WarmupWebview {
   private readonly _extensionUri: Uri;
   private _disposables: Disposable[] = [];
 
-  // Constructor function
+  /**
+   * Function to create or show existing webview panel
+   * @param panel
+   * @param extensionUri
+   */
   private constructor(panel: WebviewPanel, extensionUri: Uri) {
     this._panel = panel;
     this._extensionUri = extensionUri;
@@ -51,7 +57,11 @@ export default class WarmupWebview {
     );
   }
 
-  // Function to create or show existing webview panel
+  /**
+   * Function to create or show existing webview panel
+   * @param extensionUri
+   * @returns
+   */
   public static createOrShow(extensionUri: Uri) {
     const column = window.activeTextEditor
       ? window.activeTextEditor.viewColumn
@@ -81,12 +91,20 @@ export default class WarmupWebview {
     WarmupWebview.currentPanel = new WarmupWebview(panel, extensionUri);
   }
 
-  // Function to restore webview panel when VSCode is closed and opened back
+  /**
+   * Function to restore webview panel when VSCode is closed and opened back
+   * @param panel
+   * @param extensionUri
+   */
   public static revive(panel: WebviewPanel, extensionUri: Uri) {
     WarmupWebview.currentPanel = new WarmupWebview(panel, extensionUri);
   }
 
-  // Function send all config and start webview
+  /**
+   * Function send all config and start webview
+   * @param words
+   * @param codes
+   */
   public sendStartAndConfig(
     words: Record<string, string[]>,
     codes: Record<string, string[]>
@@ -110,7 +128,13 @@ export default class WarmupWebview {
     });
   }
 
-  // Function to send all config and start webview with selected code
+  /**
+   * Function to send all config and start webview with selected code
+   * @param selectedCode
+   * @param selectedCodeLanguage
+   * @param words
+   * @param codes
+   */
   public sendStartWithSelectionAndConfig(
     selectedCode: string,
     selectedCodeLanguage: string,
@@ -138,7 +162,11 @@ export default class WarmupWebview {
     });
   }
 
-  // Function to send a single config to webview
+  /**
+   * Function to send a single config to webview
+   * @param config
+   * @param value
+   */
   public sendConfigMessage(config: string, value: any) {
     this._panel.webview.postMessage({
       type: "singleConfig",
@@ -147,7 +175,9 @@ export default class WarmupWebview {
     });
   }
 
-  // Function to dispose of the webview panel
+  /**
+   * Function to dispose of the webview panel
+   */
   public dispose() {
     WarmupWebview.currentPanel = undefined;
 
@@ -162,7 +192,9 @@ export default class WarmupWebview {
     }
   }
 
-  // Function to update the webview's html content and title
+  /**
+   * Function to update the webview's html content and title
+   */
   private update() {
     const webview = this._panel.webview;
     this._panel.webview.html = this.getHtmlForWebview(webview);
@@ -174,7 +206,11 @@ export default class WarmupWebview {
     );
   }
 
-  // Function that returns the html for the webview
+  /**
+   * Function that returns the html for the webview
+   * @param webview
+   * @returns
+   */
   private getHtmlForWebview(webview: Webview) {
     // Uri we use to load this script in the webview
     const prismScriptUri = webview.asWebviewUri(
@@ -204,7 +240,7 @@ export default class WarmupWebview {
 				<link href="${styleUri}" rel="stylesheet">
 
 				<title>Warm Up</title>
-			</head> 
+			</head>
       <body>
         <div id="top">
           <h2 id="header">
@@ -222,7 +258,7 @@ export default class WarmupWebview {
                 <span id="wc-30">30</span>
                 <text> / </text>
                 <span id="wc-60">60</span>
-                <text> / </text> 
+                <text> / </text>
                 <span id="wc-120">120</span>
                 <text> / </text>
                 <span id="wc-240">240</span>
@@ -275,7 +311,10 @@ export default class WarmupWebview {
   }
 }
 
-// Function to generate nonce
+/**
+ * Function to generate nonce
+ * @returns
+ */
 function getNonce() {
   let text = "";
   const possible =
