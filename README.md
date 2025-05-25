@@ -13,7 +13,7 @@ Choose between 12 natural languages, 12 programming languages or select anything
 
 ## Overview
 
-![demo](https://raw.githubusercontent.com/Jeusto/vscode-typing-test/master/demo.gif?token=APQ6BVDI4QHTPKVR7TTHYOLBBSL26)
+![demo](https://raw.githubusercontent.com/Jeusto/warm-up-vscode/refs/heads/master/demo.gif)
 
 ### Start
 
